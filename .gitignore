@@ -1,0 +1,29 @@
+# Maven output and project-local dependency cache
+/target/
+/.m2/
+
+# Java and IDE-generated files
+*.class
+*.log
+hs_err_pid*
+replay_pid*
+/.classpath
+/.project
+/.settings/
+/.idea/
+*.iml
+/.vscode/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.local.properties
+*.jks
+*.p12
+*.pfx
+
+# OS files
+.DS_Store
+Thumbs.db
+
