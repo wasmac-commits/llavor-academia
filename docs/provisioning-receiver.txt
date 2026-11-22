@@ -1,0 +1,131 @@
+LLAVOR ACADEMIA - RECEPTOR DE APROVISIONAMIENTO (actualizado 17.8.5)
+
+Estado
+No requiere cambios de esquema respecto a V001. No activa aprovisionamiento al desplegar.
+No incorpora valores de identidad o credenciales predeterminados.
+No prepara AULA_001 automaticamente. No implementa cliente de Portal ni SSO.
+
+API relativa al contexto de despliegue /llavor-academia:
+PUT /internal/v1/academies/{academyId}/classrooms/{classroomId}/provisioning-operations/{operationId}
+GET /internal/v1/academies/{academyId}/classrooms/{classroomId}/provisioning-operations/{operationId}
+GET /internal/v1/academies/{academyId}/classrooms/{classroomId}
+
+Todas las rutas exigen Authorization: Bearer y X-Llavor-Key-Id.
+La credencial es Base64URL canonica sin padding de 32 bytes aleatorios (43 caracteres).
+Su verificador es SHA-256 hexadecimal en minusculas del TEXTO UTF-8 de la credencial.
+No enviar la credencial por URL, cookies, logs, chat ni argumentos de comandos.
+Los identificadores de ruta y portalInstanceId son UUID canonicos no nulos en minusculas.
+Entrada JSON estricta: exactamente contractVersion (entero 1), portalInstanceId,
+academyCode, classroomCode y classroomName. Limite 16 KiB.
+Codigos canonicos ASCII en mayusculas; nombre normalizado de hasta 190 caracteres.
+No se acepta un campo active, estado tecnico, entidad JPA ni identificador local.
+
+Configuracion MySQL (micropaso 17.8.5)
+AcademiaProvisioningConfiguration obtiene en lote de academy_parameters:
+- llavor.academia.provisioning.enabled (BOOLEAN; V002 inserta false).
+- llavor.academia.provisioning.allow-loopback-http (BOOLEAN; V002 inserta false).
+- llavor.academia.provisioning.accepted-key-ids (TEXT; sin fila inicial).
+Los identificadores aceptados son de 1 a 4, distintos, separados por comas.
+Por cada identificador K01, el lector tecnico consulta la clave local
+llavor.academia.provisioning.keys.K01.verifier (SHA256_VERIFIER, sensible, critica,
+no editable y activa). No existen verificadores iniciales ni aliases por clave.
+MysqlProvisioningCredentialVerifier delega en LocalCredentialVerifier y en
+AcademyVerifierParameterReader; SHA-256 sobre el texto UTF-8 canonico y comparacion
+MessageDigest.isEqual. Se consulta el verificador de nuevo en cada autenticacion.
+
+AcademiaInstanceRepository obtiene de academy_instance UUID local, codigo y Portal
+autorizado. La tabla NO se inicializa automaticamente ni desde propiedades externas.
+La unica propiedad externa de este receptor es llavor.academia.instance-id, que
+actua como pin esperado y se lee SOLO de la fuente MicroProfile Application del WAR.
+No sustituye la identidad persistida. La ausencia de identidad o pin, discrepancias,
+parametros ausentes/invalidos o integracion deshabilitada impiden procesar peticiones.
+No hay fallback hacia las antiguas propiedades MicroProfile ni Password Alias.
+
+MySQL temporalmente indisponible devuelve TEMPORARILY_UNAVAILABLE (503 seguro).
+Verificador ausente/revocado se rechaza como UNAUTHORIZED; datos corruptos se tratan
+como INVALID_CONFIGURATION. No hay mensajes con token, hash o excepcion original.
+Las lecturas son transacciones breves, sin cache compartida de secretos.
+El control se realiza al autenticar cada solicitud; una operacion ya iniciada puede
+terminar si la revocacion se produce despues. Ver tambien el mapa de Portal en
+../llavor-portal/docs/provisioning-mysql.txt.
+
+HTTPS obligatorio. Solo desarrollo local puede habilitar allow-loopback-http:
+se exige simultaneamente host loopback y direccion real del cliente loopback.
+No se confia en X-Forwarded-For ni en Host por si solos.
+Con un proxy TLS, la integracion de transporte seguro debe configurarse y verificarse
+antes de usar el receptor. No se desactiva validacion de certificados.
+Una sesion JSF nunca sustituye a la identidad de maquina. No se habilita CORS.
+
+Huella idempotente v1 (NO es el verificador de la credencial):
+SHA-256 de los campos en este orden:
+"1", portalInstanceId, academyId, classroomId, operationId,
+academyCode, classroomCode, classroomName normalizado.
+Cada campo se codifica UTF-8 y se precede de su longitud en 4 bytes big-endian.
+Representacion final: 64 caracteres hexadecimales en minusculas.
+Orden JSON y rotacion de credencial no alteran la huella.
+El emisor debe conservar el contenido de cada operacion durante los reintentos.
+
+Transacciones
+El orquestador usa NOT_SUPPORTED. prepare/reconcile/get usan REQUIRES_NEW
+en un bean CDI separado; los repositorios de escritura exigen MANDATORY.
+Se persisten aula y recibo en la misma transaccion. READY llega al recurso solo
+cuando el interceptor transaccional ha completado el commit.
+Un error de unicidad MySQL/MariaDB 1062 se recupera en una transaccion nueva.
+La recuperacion reconcilia el recibo confirmado o registra el recibo de una
+identidad ya preparada. Otro conflicto o incidencia devuelve 503; no hay bucles.
+No se modifica el nombre inicial ni se crean recursos formativos.
+Se rechaza una configuracion que contradiga identidades ya guardadas en esta base.
+Cambiar la identidad de una instalacion requiere detener la integracion y un
+procedimiento administrativo especifico, nunca editar configuracion mientras procesa.
+
+Respuestas
+201 primera preparacion; 200 repeticion compatible.
+400 entrada invalida; 401 credencial; 403 instancia/origen/alcance incorrectos.
+404 consulta sin resultado confirmado; 409 identidad/contenido contradictorios.
+422 recibo funcional FAILED confirmado; 503 temporal o configuracion deshabilitada/invalida.
+405/406/415 se conservan como errores HTTP de metodo/negociacion con cuerpo seguro.
+No se fabrica un recibo FAILED por excepciones, timeouts o ausencia de configuracion.
+En esta fase no hay otro trabajo funcional que pueda requerir crear un rechazo
+definitivo; si existe un recibo FAILED valido, PUT lo reproduce con 422 y GET con 200.
+Los resultados usan cadenas de fecha UTC ISO-8601 con precision de microsegundos (DATETIME(6)) y no incluyen claves internas numericas.
+
+Verificacion
+Pruebas de parser JSON-P real y de autenticacion con material aleatorio efimero solo
+en memoria. Pruebas de concurrencia con escrituras transaccionales simuladas.
+No son pruebas de integracion sobre Payara/InnoDB: quedan pendientes para despliegue
+y prueba real autorizados. No se hacen llamadas HTTP ni escrituras en MySQL.
+Dependencias: MicroProfile Config provided; Mockito y JSON-P de pruebas no se empaquetan.
+
+
+IDENTIDAD AUTENTICADA (backend, sin activacion automatica)
+GET /internal/v1/academies/{academyId}/identity
+
+Respuesta 200 application/json, contrato V1 con exactamente:
+{"contractVersion":1,"portalInstanceId":"<UUID Portal autorizado>","academyId":"<UUID Academia>","academyCode":"<codigo Academia>","keyId":"<clave autenticada>"}
+El orden de propiedades JSON no es significativo. Cache-Control: no-store y
+X-Content-Type-Options: nosniff. No hay datos de aulas, credenciales ni verificadores.
+
+Reutiliza ProvisioningAuthenticationFilter -> ProvisioningAuthenticator ->
+MysqlProvisioningCredentialVerifier -> LocalCredentialVerifier. Exige receptor
+habilitado, clave aceptada, verificador instalado y HTTPS (o excepcion loopback
+explicita con las mismas condiciones que el resto del receptor).
+ClassroomProvisioningService.getIdentity revalida la identidad/pin persistidos y
+la clave del principal, y exige que el UUID canonico de ruta coincida. No utiliza
+repositorios de aulas/recibos ni transacciones de escritura. Funciona con cero aulas.
+
+Errores existentes, sin ampliar ni cambiar los contratos de aprovisionamiento:
+401 UNAUTHORIZED: acceso anonimo, token incorrecto, clave desconocida/no aceptada,
+o contexto sin principal de maquina y rol LLAVOR_PROVISIONER.
+400 INVALID_REQUEST: UUID de ruta mal formado.
+403 ACADEMY_IDENTITY_MISMATCH / PORTAL_IDENTITY_MISMATCH: ruta o principal
+contradictorios con la identidad local. FORBIDDEN conserva la politica de transporte.
+503 PROVISIONING_DISABLED: receptor deshabilitado.
+503 INVALID_CONFIGURATION / TEMPORARILY_UNAVAILABLE: pin/configuracion invalidos
+o almacenamiento indisponible, segun los mecanismos existentes.
+
+Integracion posterior de Portal: GET con Authorization: Bearer y X-Llavor-Key-Id
+de la candidata, sin seleccionar clave activa; validar 200, Content-Type y todos
+los campos del contrato contra el destino esperado. No interpretar 404/HTML como
+exito. Mantener timeouts, prohibicion de redirecciones y politica de URL/TLS.
+Esta implementacion no habilita el receptor, no selecciona claves ni implementa
+la transicion HTTP_VERIFIED en Portal. Solo pruebas sinteticas, sin HTTP real.

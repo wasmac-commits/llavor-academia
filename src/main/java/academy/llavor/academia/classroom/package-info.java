@@ -1,5 +1,4 @@
 /**
- * Reserved functional area: classroom. No domain functionality implemented yet.
+ * Local classroom identity model. No courses, memberships, provisioning services or user interface yet.
  */
 package academy.llavor.academia.classroom;
-
