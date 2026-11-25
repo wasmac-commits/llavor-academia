@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core" xmlns:ui="jakarta.faces.facelets" xmlns:p="http://primefaces.org/ui" lang="#{academyLanguageBean.languageTag}">
+<f:view locale="#{academyLanguageBean.locale}">
+<h:head>
+ <title><ui:insert name="title">#{academyLanguageBean.text['academy.home.page_title']}</ui:insert></title>
+ <meta name="viewport" content="width=device-width, initial-scale=1"/>
+ <h:outputStylesheet library="primefaces" name="primeicons/primeicons.css"/>
+ <h:outputStylesheet library="llavor" name="css/llavor-theme.css"/>
+ <h:outputStylesheet library="llavor" name="css/language-selector.css"/>
+ <h:outputStylesheet library="llavor" name="css/academy-shell.css"/>
+ <h:outputStylesheet library="llavor" name="css/platform-header.css"/>
+ <h:outputStylesheet library="llavor" name="css/academy-navigation.css"/>
+</h:head>
+<h:body styleClass="academy-shell llavor-platform">
+ <a class="academy-skip-link" href="#academy-main">#{academyLanguageBean.text['common.navigation.skip']}</a>
+ <ui:include src="/WEB-INF/fragments/academy-header.xhtml"/>
+ <ui:include src="/WEB-INF/fragments/academy-sidebar.xhtml"/>
+ <button id="academy-menu-backdrop" class="academy-backdrop" type="button" tabindex="-1" aria-label="#{academyLanguageBean.text['academy.shell.close_menu']}" hidden="hidden"></button>
+ <main id="academy-main" class="academy-main" tabindex="-1">
+  <div class="academy-content">
+   <p:messages id="languageMessages" showDetail="false"/>
+   <ui:insert name="content"/>
+  </div>
+  <footer class="academy-footer">#{academyLanguageBean.text['portal.footer.learning']}</footer>
+ </main>
+ <h:outputScript library="llavor" name="js/academy-shell.js" target="body"/>
+ <h:outputScript library="llavor" name="js/header-controls.js" target="body"/>
+</h:body>
+</f:view>
+</html>

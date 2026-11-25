@@ -1,18 +1,30 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="jakarta.faces.html"
-      xmlns:p="http://primefaces.org/ui" lang="es">
-<h:head>
-    <title>Llavor Academia</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-</h:head>
-<h:body>
-    <main>
-        <h1>Llavor Academia</h1>
-        <p:panel header="Infraestructura base">
-            <h:outputText value="Aplicación preparada para la comprobación de despliegue."/>
-        </p:panel>
-    </main>
-</h:body>
-</html>
-
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="jakarta.faces.facelets" xmlns:h="jakarta.faces.html" template="/WEB-INF/templates/academy-template.xhtml">
+ <ui:define name="content">
+  <section id="inicio" class="academy-view" data-academy-panel="inicio" aria-labelledby="home-title">
+   <div class="academy-breadcrumb"><span>#{academyLanguageBean.text['academy.header.context']}</span><i class="pi pi-angle-right" aria-hidden="true"></i><span>#{academyLanguageBean.text['academy.shell.home']}</span></div>
+   <div class="academy-welcome academy-panel">
+    <div class="academy-red-rule" aria-hidden="true"></div>
+    <p class="academy-eyebrow">#{academyLanguageBean.text['academy.home.eyebrow']}</p>
+    <h1 id="home-title">#{academyLanguageBean.text['academy.shell.welcome']}</h1>
+    <p class="academy-welcome-name"><h:outputText value="#{academyLanguageBean.format('common.greeting', academyHome.displayName)}"/></p>
+    <p class="academy-muted">#{academyLanguageBean.text['academy.home.subtitle']}</p>
+    <div class="academy-context-tag"><i class="pi pi-building" aria-hidden="true"></i><h:outputText value="#{academyHome.classroomName}"/></div>
+   </div>
+   <section class="academy-panel academy-learning-space" aria-labelledby="learning-title">
+    <div class="academy-section-heading"><span class="academy-number" aria-hidden="true">01</span><div><p class="academy-eyebrow">#{academyLanguageBean.text['academy.shell.learning']}</p><h2 id="learning-title">#{academyLanguageBean.text['academy.shell.your_space']}</h2></div><i class="pi pi-graduation-cap academy-section-icon" aria-hidden="true"></i></div>
+    <div class="academy-empty-state"><span class="academy-empty-icon"><i class="pi pi-book" aria-hidden="true"></i></span><h3>#{academyLanguageBean.text['academy.shell.ready']}</h3><p>#{academyLanguageBean.text['academy.home.coming']}</p><span class="academy-pill">#{academyLanguageBean.text['academy.shell.no_units']}</span></div>
+   </section>
+   <div class="academy-card-grid">
+    <section class="academy-panel academy-detail-card"><div class="academy-section-heading"><span class="academy-number" aria-hidden="true">02</span><h2>#{academyLanguageBean.text['academy.home.authorized']}</h2></div><dl class="academy-data"><div><dt>#{academyLanguageBean.text['academy.shell.classroom']}</dt><dd><h:outputText value="#{academyHome.classroomName}"/></dd></div><div><dt>#{academyLanguageBean.text['academy.shell.code']}</dt><dd><h:outputText value="#{academyHome.classroomCode}"/></dd></div></dl></section>
+    <section class="academy-panel academy-detail-card"><div class="academy-section-heading"><span class="academy-number" aria-hidden="true">03</span><h2>#{academyLanguageBean.text['academy.shell.session']}</h2></div><dl class="academy-data"><div><dt>#{academyLanguageBean.text['academy.shell.user']}</dt><dd><h:outputText value="#{academyHome.displayName}"/></dd></div><div><dt>#{academyLanguageBean.text['academy.home.technical']}</dt><dd><h:outputText value="#{academyHome.academyCode}"/></dd></div></dl></section>
+   </div>
+  </section>
+  <section id="perfil" class="academy-view" data-academy-panel="perfil" aria-labelledby="profile-title">
+   <div class="academy-page-heading"><p class="academy-eyebrow">#{academyLanguageBean.text['academy.header.context']}</p><h1 id="profile-title">#{academyLanguageBean.text['academy.shell.profile']}</h1></div>
+   <section class="academy-panel academy-detail-card"><i class="pi pi-user academy-feature-icon" aria-hidden="true"></i><h2>#{academyLanguageBean.text['academy.shell.session']}</h2><dl class="academy-data"><div><dt>#{academyLanguageBean.text['academy.shell.user']}</dt><dd><h:outputText value="#{academyHome.displayName}"/></dd></div><div><dt>#{academyLanguageBean.text['academy.shell.classroom']}</dt><dd><h:outputText value="#{academyHome.classroomName}"/></dd></div><div><dt>#{academyLanguageBean.text['academy.shell.code']}</dt><dd><h:outputText value="#{academyHome.classroomCode}"/></dd></div></dl><p class="academy-muted">#{academyLanguageBean.text['academy.shell.profile_readonly']}</p></section>
+  </section>
+  <section id="informacion" class="academy-view" data-academy-panel="informacion" aria-labelledby="information-title"><div class="academy-page-heading"><p class="academy-eyebrow">#{academyLanguageBean.text['academy.header.context']}</p><h1 id="information-title">#{academyLanguageBean.text['academy.shell.information']}</h1></div><section class="academy-panel academy-detail-card"><i class="pi pi-compass academy-feature-icon" aria-hidden="true"></i><h2>#{academyLanguageBean.text['academy.shell.your_space']}</h2><p>#{academyLanguageBean.text['academy.shell.information_detail']}</p><p class="academy-muted">#{academyLanguageBean.text['academy.home.coming']}</p></section></section>
+  <section id="acerca" class="academy-view" data-academy-panel="acerca" aria-labelledby="about-title"><div class="academy-page-heading"><p class="academy-eyebrow">Llavor Academy</p><h1 id="about-title">#{academyLanguageBean.text['academy.shell.about']}</h1></div><section class="academy-panel academy-detail-card"><span class="academy-number" aria-hidden="true">LA</span><h2>Llavor Academy</h2><p>#{academyLanguageBean.text['academy.shell.specialist']}</p><p class="academy-muted">#{academyLanguageBean.text['academy.shell.about_detail']}</p></section></section>
+ </ui:define>
+</ui:composition>

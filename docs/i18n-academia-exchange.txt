@@ -1,0 +1,117 @@
+ETAPA 19 - Catálogo local y preferencia compartida (23/11/2026)
+
+Estado operativo y autorización
+V005 aplicada después de comprobar ausencia total y realizar respaldo consistente
+de llavor_academia (seis tablas InnoDB), con dump completado, SHA-256 y mysqlcheck
+correctos. Respaldo y WAR anterior fuera de los repositorios:
+C:/Users/Javi/Documents/Llavor Backups/stage19-academia-i18n-20261123-105002
+Se usó single-transaction, no-tablespaces y triggers: no se ampliaron privilegios
+globales. No se modificó el SQL histórico. Verificados PK singleton, CHECK enforced,
+tipos/nullabilidad y fila id=1, versión 0. No se creó ningún usuario ni aula.
+
+El estado real de Portal al empezar era revisión 2, publicación 1, 42 claves,
+distinto del resumen de ausencia de publicaciones. Se conserva esa publicación.
+Hay 58 claves preparadas: las 54 anteriores y cuatro etiquetas de actualización,
+error y reintento de la preferencia. No hay traducción automática. El importador
+administrativo existente añade solo ausencias al borrador, sin sobrescribir ni
+publicar. La publicación nueva requiere revisión y autorización del administrador.
+
+Autenticación y límites
+Comunicación i18n separada de aprovisionamiento, dentro de la REST cerrada actual:
+POST /internal/v1/sso/i18n/catalog
+POST /internal/v1/sso/i18n/preference/read
+POST /internal/v1/sso/i18n/preference
+Cada petición usa el verificador S01 existente, el destino configurado y el secreto
+descifrado a través de SsoCredentialProvider. No se cambia K01, S01, sus valores,
+verificadores, permisos ni parámetros de aprovisionamiento. No se usan workers.
+El rol técnico no obtiene i18n.manage ni capacidad de editar/publicar el catálogo.
+Además requiere un accessId humano activo revalidado para la Academia y aula
+autenticadas. No se acepta userId del navegador o del cuerpo técnico: Portal lo
+deriva de la autorización revalidada. Duplicados, campos extra, métodos, rutas,
+queries y tamaños inválidos siguen rechazándose.
+
+Nueva capacidad DESHABILITADA por defecto en ambos WAR:
+llavor.i18n.exchange-enabled=false (MicroProfile, ámbito Application).
+No se instala una credencial ni se cambia un URL para activarla. Solo después de
+autorización expresa se pondrá true en Portal y Academia. Antes de esa autorización
+las rutas no dan datos ni escriben preferencias y no se inician llamadas nuevas.
+Se usa el mismo destino TLS, sin redirects, proxies, logs HTTP o verificación TLS
+relajada. El loopback de desarrollo sigue las reglas existentes de configuración.
+
+Distribución
+Actualizar idiomas es una acción humana explícita con POST, JSF ViewState y CSRF
+en el encabezado de Academia. No se descarga al iniciar, en un getter, en cada
+render o por cada texto; no existe temporizador. Se descarga únicamente la última
+publicación ui, con payload UTF-8 estricto y SHA-256. Versión 0 no distribuible.
+Límite del catálogo 4 MiB; los contratos SSO pequeños conservan 4 KiB.
+El digest detecta corrupción, no sustituye la autenticación HTTP.
+La instalación reutiliza LocalTranslationService REQUIRES_NEW y su bloqueo de
+fila: comprueba Portal fijado, tipo, digest, JSON, versión y fecha antes de guardar.
+Se rechazan versiones inferiores, misma versión con otro contenido, otro Portal,
+fechas inválidas y catálogos corruptos. Repetición exacta idempotente. Cualquier
+rechazo deja intacta la última copia. El render usa solo esa copia local y español
+de recuperación; nunca los textos valencianos empaquetados sin publicación.
+
+SSO y preferencia
+Academia negocia X-Llavor-I18n: 1 solo con la capacidad habilitada. En ese caso,
+Portal puede incluir interfaceLanguage e interfaceLanguageVersion en la respuesta
+autenticada de consumo. Proceden de la preferencia validada con el catálogo
+publicado y el usuario del grant ya consumido, no de un parámetro del navegador.
+Los clientes antiguos sin negociación reciben exactamente la respuesta V1 previa;
+Academia nueva acepta un Portal antiguo sin extensión (es, versión de fila -1).
+Campos parciales, etiquetas no canónicas y versiones inválidas se rechazan.
+La extensión no cambia identidad, pertenencia, expiración, revocación ni permisos.
+Una indisponibilidad al leer la preferencia no convierte un consumo ya confirmado
+en un error: se omite la extensión y se mantiene la recuperación española.
+
+HumanSession conserva idioma, versión optimista de preferencia y estado pendiente.
+El selector ofrece solo idiomas habilitados de una publicación local completa y
+aplica inmediatamente la elección al Locale de JSF. La acción intenta guardarla
+en Portal usando el accessId del humano, el principal técnico y expectedVersion.
+El servicio de preferencia existente valida idioma publicado, usuario activo y
+concurrencia. No hay una cuenta humana local ni otro catálogo de preferencias.
+Si falla la red, la elección local sigue en la sesión y se muestra pendiente;
+el reintento es explícito. Una colisión no sobrescribe otra sesión: se observa la
+versión actual y un reintento posterior vuelve a comprobarla. Si la respuesta
+del guardado se perdió pero Portal ya tiene esa elección, se reconoce al leerla.
+La actualización explícita de catálogo recupera la preferencia de Portal solo
+cuando no hay una elección local pendiente, evitando perder trabajo del usuario.
+
+Indisponibilidad y autorización humana
+Las traducciones locales no dependen de HTTP. Si falla solo el guardado de idioma,
+no se invalida la sesión. Si falla la revalidación SSO de acceso por TIMEOUT o
+REMOTE_UNAVAILABLE, se conserva la sesión y su preferencia pero se devuelve 503
+con Retry-After. NO se permite acceso funcional sin revalidación ni se introduce
+una caché de autorización offline. Revocación, expiración y denegación siguen
+cerrando el acceso e invalidando la sesión según el circuito existente. Tras
+recuperarse Portal, la sesión aún válida puede continuar; los límites de tiempo
+de la sesión siguen vigentes. Esta distinción preserva los controles de SSO.
+
+Puesta en marcha pendiente de autorización
+1. Revisar el borrador completo y autorizar/publicar la nueva versión en Portal.
+2. Autorizar habilitar llavor.i18n.exchange-enabled en Application de ambos WAR.
+3. Entrar de nuevo mediante SSO para recibir el idioma y su versión, y pulsar
+   Actualizar idiomas en Academia para instalar la publicación local.
+4. Comprobar cambio a valenciano, guardado y regreso a Portal. Sin publicación
+   completa instalada, el selector de Academia sigue en español deshabilitado.
+
+La administración de Portal permanece en español. Los nombres y datos del usuario
+no se traducen. No se toca PraxIA ni se realizan operaciones Git.
+
+Resultado de ejecución
+- Portal: BUILD SUCCESS, 818 pruebas, cero fallos/errores/omisiones.
+- Academia: BUILD SUCCESS, 328 pruebas, cero fallos/errores/omisiones.
+- Ambos RUN completados sin reiniciar Payara; cinco aplicaciones habilitadas.
+- Identidades Application verificadas: Portal a453b620-e59b-11f1-87f2-d4939055b632;
+  Academia a45c4cdd-e59b-11f1-87f2-d4939055b632.
+- V005: PRIMARY y ck_i18n_local_state con ENFORCED=YES; catálogo local versión 0.
+- Incorporación real mediante Administración > Idiomas > Publicación, con su
+  confirmación: 16 claves y 16 traducciones nuevas, cero omisiones por parámetros.
+  Borrador revisión 3, 58 claves, cero pendientes. No se publicó.
+- Publicación 1 preservada, SHA-256:
+  3d86a504d99688b109ee5af4b7f2b343997b1e474ec0f2a44fa98f0f7dfcff68
+- Comprobación autenticada: administración española, incorporación correcta y
+  acceso SSO habitual a Academia funcionando. Sin errores nuevos CDI/JPA/JSF.
+- Intercambio i18n todavía deshabilitado, sin descargas ni escrituras remotas de
+  preferencia reales. Academia sigue en recuperación española. Su habilitación
+  y la prueba integral con valenciano real esperan autorización expresa.

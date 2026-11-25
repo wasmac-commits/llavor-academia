@@ -1,0 +1,25 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="jakarta.faces.facelets" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core" xmlns:p="http://primefaces.org/ui">
+ <div id="academy-session-controls" class="academy-session-controls">
+                <h:form id="academyLocaleForm" styleClass="llavor-locale-form">
+                    <div class="academy-language-control">
+                    <span class="llavor-language-icon" aria-hidden="true"><i class="pi pi-globe" aria-hidden="true"></i></span>
+                    <input type="hidden" name="languageCsrf" value="#{academyHome.csrf}"/>
+                    <p:outputLabel for="locale" value="#{academyLanguageBean.text['common.language.select']}" styleClass="llavor-visually-hidden"/>
+                    <p:selectOneMenu id="locale" value="#{academyLanguageBean.selectedLanguage}" disabled="#{not academyLanguageBean.canChange}"
+                                     title="#{academyLanguageBean.text['common.language.select']}" styleClass="llavor-locale-select" widgetVar="academyLanguageSelector" panelStyleClass="academy-language-panel" autoWidth="false">
+                        <f:selectItems value="#{academyLanguageBean.languages}" var="language" itemValue="#{language.tag}" itemLabel="#{language.nativeName}"/>
+                        <p:ajax listener="#{academyLanguageBean.change}" process="@form" partialSubmit="false" update="locale localeMessage"/>
+                    </p:selectOneMenu>
+                    </div>
+                    <p:message id="localeMessage" for="locale"/>
+                    <p:commandButton value="#{academyLanguageBean.text['academy.i18n.retry']}" action="#{academyLanguageBean.retryPreference}" ajax="false"
+                                     rendered="#{academyLanguageBean.preferencePending and academyLanguageBean.exchangeEnabled}" styleClass="ui-button-flat ui-button-plain llavor-locale-refresh"/>
+                </h:form>
+                <form method="post" action="#{request.contextPath}/sso/logout" class="llavor-logout-form">
+                    <input type="hidden" name="csrf" value="#{academyHome.csrf}"/>
+                    <button type="submit" class="llavor-logout-button" title="#{academyLanguageBean.text['academy.session.logout_title']}">
+                        <i class="pi pi-sign-out" aria-hidden="true"></i><span>#{academyLanguageBean.text['common.session.logout']}</span>
+                    </button>
+                </form>
+ </div>
+</ui:composition>

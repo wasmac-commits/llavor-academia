@@ -1,0 +1,44 @@
+Etapa 21 - Refinamiento de navegacion responsive
+
+Alcance exclusivo de Academia. No se modifican Portal, PraxIA, SSO, configuracion
+de proxy, preferencias persistentes, credenciales ni el estado HTTP recuperado.
+
+- Header movil/tablet (hasta 1023 px): menu a la izquierda y logo real a la derecha.
+  Una fila con linea roja. El grupo de configuracion del header no es visible ni
+  recibe foco en este modo. La composicion del header de escritorio se conserva.
+- Sidebar movil: usuario y aula reales en la zona superior con cierre; navegacion
+  existente y unidades futuras en el centro; idioma y logout al pie. Scroll de todo
+  el panel cuando falta altura, sin superposicion de controles a las opciones.
+- academy-session-controls.xhtml contiene la UNICA instancia del formulario de
+  idioma y la UNICA del logout POST/CSRF. academy-shell.js mueve el mismo grupo DOM
+  entre sidebar y header segun el breakpoint, sin clonar componentes o estado.
+  Se conservan IDs, listener, servicio de persistencia, reintento y catalogo publicado.
+- Sin JavaScript, los formularios permanecen en el sidebar accesible de reserva.
+- Selector PrimeFaces 15 selectOneMenu real: nombre nativo, globo integrado, flecha,
+  fondo gris azulado, bordes, foco visible y panel de opciones con hover/seleccion.
+  El popup conserva su colocacion en body con ajuste de posicion del componente,
+  para no quedar recortado por el scroll del sidebar. Escape cierra primero el
+  popup si esta abierto; despues cierra el sidebar y devuelve foco al boton.
+- El trap de Tab incluye los controles reales. Se conservan cierre por fondo,
+  Escape, navegacion de vistas y restauracion de foco al cambiar de modo.
+- academy-navigation.css se carga despues de los estilos compartidos, con alcance
+  exclusivo de Academia. No es necesario modificar assets compartidos con Portal.
+- La frontera de recursos incorpora solamente el path exacto de la nueva CSS.
+
+Pruebas:
+- Maven package completo: 347 pruebas, cero fallos, errores u omitidas.
+- node --test src/test/js/academy-navigation.test.cjs: 8 pruebas correctas.
+  DOM simulado: movimiento unico a 360/375/390/768 y vuelta a escritorio 1440,
+  identidad de componentes, teclado, foco, popup, backdrop y navegacion.
+  Estas comprobaciones de comportamiento no equivalen a una inspeccion visual.
+- Los tests existentes de idioma/persistencia, autorizacion y logout se mantienen.
+- Registro Maven: target/navigation-refinement-build.log.
+  Registro RUN: target/navigation-refinement-run.log.
+
+Revision personal en Chrome:
+Iniciar una nueva sesion desde el selector HTTP localhost tras el redeploy.
+Recargar recursos y probar 360, 375, 390, 768 y escritorio: posicion del logo,
+usuario real, scroll con poca altura, apertura/cierre, Tab/Shift+Tab/Escape,
+opciones del idioma, persistencia al reentrar desde Portal y logout POST.
+No se han cambiado idiomas de usuarios reales desde las pruebas automatizadas.
+La validacion visual final corresponde al administrador.

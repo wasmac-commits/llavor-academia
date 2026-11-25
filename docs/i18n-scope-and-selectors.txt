@@ -1,0 +1,91 @@
+ETAPA 19 - Alcance funcional definitivo y selectores unificados (23/11/2026)
+
+Este documento actualiza el alcance de i18n-stage19.txt y i18n-selector-19-4.txt.
+Portal: login, Mis aulas y encabezado del usuario multilenguaje. Los módulos
+administrativos, incluido su encabezado, permanecen en español. Entrar en /admin/
+no sobrescribe la preferencia personal; al volver a Mis aulas se recupera.
+Academia: toda interfaz funcional presente y futura debe usar claves estables
+desde su implementación. No traducir nombres propios ni datos del usuario.
+Portal conserva la administración central de idiomas, borradores y publicaciones.
+
+Login: selector separado del formulario de credenciales, únicamente con idiomas
+del catálogo publicado. La selección anónima se guarda en la sesión HTTP y exige
+POST, ViewState y token propio de sesión. No identifica al usuario ni crea cuentas.
+Tras autenticar se conserva la preferencia persistida existente. Si el usuario no
+tiene ninguna, una elección explícita del login inicializa su preferencia usando
+el servicio existente y control de versión. Un fallo de esa escritura no rechaza
+el login. La elección anónima se elimina al autenticar o caducar la sesión.
+
+Selector compartido visualmente: mismo CSS local en ambos WAR, fondo transparente,
+globo neutral, nombre nativo y flecha de PrimeFaces. El teclado y el foco visible
+siguen el control accesible existente. No se atribuye una bandera nacional única
+a idiomas usados en varios territorios. No hay dependencia ni framework nuevo.
+La prueba AcademiaHeaderTest sigue exigiendo igualdad de CSS y logotipo.
+Los estilos del selector se sirven en language-selector.css, un recurso nuevo
+local e idéntico en ambos WAR para no heredar el CSS antiguo cacheado del header.
+
+Academia: AcademyLanguageBean resuelve una instantánea local por petición, aplica
+el Locale JSF antes de validar y conserva la elección en su sesión autenticada.
+La acción exige POST y el CSRF de HumanSession; el filtro mantiene la revalidación
+SSO de acceso. Solo se admite el POST de la vista y los recursos estáticos
+concretos que necesita PrimeFaces; no se abre una excepción genérica de recursos.
+No hay cliente HTTP de traducciones ni consultas remotas por expresiones EL.
+La revalidación SSO ya existente sigue funcionando: no se elimina ni duplica.
+
+V005 sigue SIN APLICAR: la tabla local no existe en el entorno comprobado.
+Una comprobación de metadatos permite recuperar es v0 sin consultar la tabla
+ausente. No crea tablas ni simula una publicación. Cada petición resuelve todas
+las expresiones con un mapa en memoria. Con V005 y una publicación instalada,
+usa el catálogo persistente. Idioma ausente/deshabilitado -> es; texto ausente ->
+texto español. Un catálogo antiguo sin las claves de estas pantallas no habilita
+la interfaz multilingüe. Los textos valencianos empaquetados nunca se renderizan
+como si estuvieran publicados.
+
+Preferencia compartida: PENDIENTE. La inspección de los contratos SSO V1 consume
+y check confirma que no llevan language/locale; el lector rechaza campos extra.
+No se añade una identidad local ni se amplían esos contratos silenciosamente.
+Portal conserva su preferencia persistente al regresar de Academia. Una elección
+local de Academia dura su sesión; no se comunica a Portal ni inicializa desde su
+preferencia. La igualdad del idioma entre las dos aplicaciones NO queda resuelta
+por el encabezado: necesita un intercambio i18n autenticado, asociado al humano
+validado, fuera del renderizado, en un paso posterior con contrato acordado.
+Las pruebas comprueban conservación local y retorno a Portal, y esta ausencia de
+transmisión se documenta como límite; no se afirma una prueba integral inexistente.
+
+Catálogos: 54 claves es/ca-ES-valencia preparadas en el recurso central de Portal,
+incluidas las de Academia. Su acción administrativa de importación añade solo
+ausencias al borrador y requiere confirmación. Copia de recuperación de Academia
+limitada a sus claves, comprobada contra la fuente central por pruebas.
+No se importan ni publican datos al compilar, iniciar o desplegar.
+Pendiente: autorización de V005, distribución autenticada de publicaciones,
+intercambio de preferencia y revisión/publicación administrativa de traducciones.
+
+Incidencia Maven inicial: surefire indicaba un solo fallo en AcademiaHeaderTest,
+por CSS desalineado (Portal 8991 bytes, Academia 7917). Se sincronizó el recurso
+compartido y las 305 pruebas originales pasaron, conservando la aserción. Las
+pruebas que antes buscaban literales en XHTML ahora comprueban sus claves y los
+acentos en el catálogo, porque los textos han pasado a la fuente administrable.
+
+No se modifican credenciales K01/S01, aprovisionamiento, cuentas, aulas ni PraxIA.
+No se aplican migraciones ni se realizan operaciones Git. Despliegue solo mediante
+las tareas RUN existentes tras BUILD SUCCESS en ambos proyectos, sin reiniciar
+Payara ni cambiar comunicaciones.
+
+Verificación de despliegue: ambos RUN finales terminaron correctamente con
+BUILD SUCCESS; Portal 808 pruebas y Academia 316, sin fallos/errores/omisiones.
+Identidades Application: Portal a453b620-e59b-11f1-87f2-d4939055b632 y Academia
+a45c4cdd-e59b-11f1-87f2-d4939055b632. Cinco aplicaciones habituales habilitadas.
+El nuevo CSS responde 200 en ambos WAR. Sin errores nuevos CDI/JPA/JSF al arrancar.
+RUN repuso y comprobó las propiedades Application tras redeploy como establece
+su procedimiento. No se reinició Payara. Catálogo real observado durante esta
+revisión: revisión 2, publicación 1, 42 claves. Es un estado ya existente; este
+trabajo no ejecutó importación ni publicación. Las 12 claves nuevas de Academia
+están solo preparadas en el recurso central.
+
+Comprobación visual final autenticada: Portal muestra Les meues aules y Valencià
+con selector transparente. Administración aparece íntegramente en español y sin
+selector; al regresar recupera Valencià. Acceso normal SSO a Academia correcto:
+encabezado equivalente, Español deshabilitado y página inicial con textos de
+recuperación y datos reales sin traducir. Regreso a Portal conserva Valencià.
+No se ha importado ni publicado durante la revisión. El catálogo/preferencia
+compartidos siguen pendientes; Academia no recibió valenciano por el SSO.

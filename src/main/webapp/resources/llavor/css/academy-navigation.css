@@ -1,0 +1,55 @@
+/* Academia navigation refinement, scoped locally; shared Portal assets remain intact. */
+.academy-shell .academy-sidebar-user {display:none;}
+.academy-shell .academy-sidebar-navigation {flex:0 0 auto;min-width:0;}
+.academy-shell .academy-session-controls {display:flex;align-items:center;gap:18px;min-width:0;}
+.academy-shell.is-enhanced .academy-sidebar-session {display:none;}
+.academy-shell:not(.is-enhanced) .academy-sidebar-session {margin-top:20px;}
+.academy-shell .academy-language-control {position:relative;display:flex;align-items:center;min-width:0;}
+.academy-shell .academy-language-control .llavor-language-icon {position:absolute;left:14px;top:50%;transform:translateY(-50%);z-index:2;display:inline-flex!important;color:#52657b;font-size:14px;pointer-events:none;}
+.academy-shell .academy-language-control .llavor-locale-select.ui-selectonemenu {display:flex;align-items:center;width:162px;min-width:0;max-width:100%;min-height:44px;background:#edf2f7!important;border:1px solid #bac7d5!important;border-radius:10px;padding:0;box-shadow:0 1px 2px #16212D08!important;transition:background .15s,border-color .15s;}
+.academy-shell .academy-language-control .llavor-locale-select.ui-selectonemenu:hover {background:#e4ebf3!important;border-color:#8498b0!important;}
+.academy-shell .academy-language-control .llavor-locale-select .ui-selectonemenu-label {padding:11px 34px 11px 39px;font:600 13px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#273544!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.academy-shell .academy-language-control .llavor-locale-select .ui-selectonemenu-trigger {right:6px;width:26px;color:#52657b!important;}
+.academy-shell .academy-language-control .llavor-locale-select.ui-state-focus {outline:3px solid #c50024!important;outline-offset:3px;}
+.academy-shell .academy-language-panel.ui-selectonemenu-panel {background:#f8fafc;border:1px solid #bac7d5;border-radius:10px;box-shadow:0 12px 32px #16212D24;padding:5px;max-width:calc(100vw - 24px);color:#273544;color-scheme:light;}
+.academy-shell .academy-language-panel .ui-selectonemenu-items {padding:0;}
+.academy-shell .academy-language-panel .ui-selectonemenu-item {font:500 13px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:44px;padding:11px 12px;margin:2px 0;border:0;border-radius:6px;color:#273544;}
+.academy-shell .academy-language-panel .ui-selectonemenu-item.ui-state-hover {background:#e4ebf3;color:#16212D;}
+.academy-shell .academy-language-panel .ui-selectonemenu-item.ui-state-highlight {background:#dbe4ef;color:#16212D;font-weight:700;box-shadow:inset 3px 0 #F0052C;}
+.academy-shell .academy-language-panel .ui-selectonemenu-item:focus-visible {outline:2px solid #c50024;outline-offset:-2px;}
+@media(max-width:1023px) {
+ .academy-shell .llavor-platform-header {display:flex;flex-wrap:nowrap;gap:12px;min-height:84px;padding:8px 16px;}
+ .academy-shell .llavor-platform-header > .llavor-brand-link {margin-left:auto;min-width:0;justify-content:flex-end;}
+ .academy-shell .llavor-platform-header .llavor-header-logo {width:180px;height:60px;max-width:calc(100vw - 104px);}
+ .academy-shell .llavor-platform-header > .platform-controls {display:none;}
+ .academy-shell .academy-sidebar {display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;max-height:100dvh;padding:20px 14px;}
+ .academy-shell .academy-sidebar-user {display:grid;grid-template-columns:36px minmax(0,1fr) 44px;align-items:start;gap:10px;padding:0 0 20px;border-bottom:1px solid #41506480;margin-bottom:22px;flex:0 0 auto;}
+ .academy-shell .academy-sidebar-avatar {display:flex;align-items:center;justify-content:center;width:36px;height:36px;background:#273544;border:1px solid #415064;border-radius:10px;color:#AEBBC9;}
+ .academy-shell .academy-sidebar-user-info {min-width:0;padding-top:2px;}
+ .academy-shell .academy-sidebar-user-info strong {display:block;font-size:14px;line-height:1.5;font-weight:650;color:#fff;overflow-wrap:anywhere;}
+ .academy-shell .academy-sidebar-user-info span {display:block;color:#AEBBC9;font-size:11px;line-height:1.6;margin-top:5px;overflow-wrap:anywhere;}
+ .academy-shell .academy-sidebar-user .academy-menu-close {margin-top:-4px;}
+ .academy-shell .academy-sidebar-heading {padding-left:14px;}
+ .academy-shell .academy-sidebar-navigation {flex:1 0 auto;}
+ .academy-shell .academy-sidebar-context {display:none;}
+ .academy-shell.is-enhanced .academy-sidebar-session, .academy-shell .academy-sidebar-session {display:block;flex:0 0 auto;margin-top:20px;padding:22px 12px 8px;border-top:1px solid #41506480;}
+ .academy-shell .academy-session-controls {display:flex;flex-direction:column;align-items:stretch;gap:16px;}
+ .academy-shell .academy-session-controls .llavor-locale-form {display:flex;flex-direction:column;align-items:stretch;gap:8px;color:#fff;max-width:none;width:100%;}
+ .academy-shell .academy-language-control {width:100%;}
+ .academy-shell .academy-language-control .llavor-language-icon {color:#AEBBC9;}
+ .academy-shell .academy-language-control .llavor-locale-select.ui-selectonemenu {width:100%;background:#273544!important;border-color:#52657b!important;box-shadow:none!important;}
+ .academy-shell .academy-language-control .llavor-locale-select.ui-selectonemenu:hover {background:#314153!important;}
+ .academy-shell .academy-language-control .llavor-locale-select .ui-selectonemenu-label {color:#fff!important;}
+ .academy-shell .academy-language-control .llavor-locale-select .ui-selectonemenu-trigger {color:#AEBBC9!important;}
+ .academy-shell .academy-language-control .llavor-locale-select.ui-state-focus {outline-color:#fb7185!important;}
+ .academy-shell .academy-session-controls .llavor-logout-form {margin:0;}
+ .academy-shell .academy-session-controls .llavor-logout-button {display:flex;justify-content:flex-start;align-items:center;gap:12px;width:100%;min-height:46px;padding:10px 14px;border:1px solid #415064;border-radius:9px;background:transparent;color:#fff;font-size:13px;}
+ .academy-shell .academy-session-controls .llavor-logout-button span {display:inline;}
+ .academy-shell .academy-session-controls .llavor-logout-button:hover {background:#273544;border-color:#fb7185;}
+ .academy-shell .academy-session-controls .llavor-locale-refresh.ui-button {font-size:12px;background:#273544!important;color:#fff!important;border:1px solid #415064!important;min-height:44px;}
+ .academy-shell .academy-language-panel.ui-selectonemenu-panel {background:#273544;border-color:#52657b;color:#fff;color-scheme:dark;}
+ .academy-shell .academy-language-panel .ui-selectonemenu-item {color:#fff;}
+ .academy-shell .academy-language-panel .ui-selectonemenu-item.ui-state-hover {background:#415064;color:#fff;}
+ .academy-shell .academy-language-panel .ui-selectonemenu-item.ui-state-highlight {background:#415064;color:#fff;}
+}
+@media(prefers-reduced-motion:reduce){.academy-shell .academy-language-control .llavor-locale-select.ui-selectonemenu {transition:none;}}

@@ -1,0 +1,25 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="jakarta.faces.facelets" xmlns:h="jakarta.faces.html">
+ <aside id="academy-sidebar" class="academy-sidebar" aria-label="#{academyLanguageBean.text['academy.shell.navigation']}">
+  <div class="academy-sidebar-user">
+   <span class="academy-sidebar-avatar" aria-hidden="true"><i class="pi pi-user"></i></span>
+   <div class="academy-sidebar-user-info"><strong><h:outputText value="#{academyHome.displayName}"/></strong><span>#{academyLanguageBean.text['academy.home.authorized']} &#183; <h:outputText value="#{academyHome.classroomCode}"/></span></div>
+   <button id="academy-menu-close" type="button" class="academy-icon-button academy-menu-close" aria-label="#{academyLanguageBean.text['academy.shell.close_menu']}"><i class="pi pi-times" aria-hidden="true"></i></button>
+  </div>
+  <div class="academy-sidebar-navigation">
+  <div class="academy-sidebar-heading"><span id="academy-navigation-title">#{academyLanguageBean.text['academy.shell.navigation']}</span></div>
+  <nav class="academy-navigation" aria-labelledby="academy-navigation-title">
+   <a href="#inicio" data-academy-view="inicio" aria-current="page"><i class="pi pi-home" aria-hidden="true"></i><span>#{academyLanguageBean.text['academy.shell.home']}</span></a>
+   <a href="#perfil" data-academy-view="perfil"><i class="pi pi-user" aria-hidden="true"></i><span>#{academyLanguageBean.text['academy.shell.profile']}</span></a>
+   <a href="#informacion" data-academy-view="informacion"><i class="pi pi-info-circle" aria-hidden="true"></i><span>#{academyLanguageBean.text['academy.shell.information']}</span></a>
+   <a href="#acerca" data-academy-view="acerca"><i class="pi pi-building" aria-hidden="true"></i><span>#{academyLanguageBean.text['academy.shell.about']}</span></a>
+  </nav>
+  <section class="academy-units" aria-labelledby="academy-units-title">
+   <h2 id="academy-units-title">#{academyLanguageBean.text['academy.shell.units']}</h2>
+   <ui:repeat value="#{academyNavigation.units}" var="unit"><h:link outcome="#{unit.outcome}" value="#{academyLanguageBean.text[unit.labelKey]}"/></ui:repeat>
+   <h:panelGroup layout="block" rendered="#{empty academyNavigation.units}" styleClass="academy-units-empty"><i class="pi pi-book" aria-hidden="true"></i><p>#{academyLanguageBean.text['academy.shell.no_units']}</p></h:panelGroup>
+  </section>
+  </div>
+  <div id="academy-sidebar-session" class="academy-sidebar-session"><ui:include src="/WEB-INF/fragments/academy-session-controls.xhtml"/></div>
+  <div class="academy-sidebar-context"><span class="academy-status-dot" aria-hidden="true"></span><div><span>#{academyLanguageBean.text['academy.home.authorized']}</span><strong><h:outputText value="#{academyHome.classroomCode}"/></strong></div></div>
+ </aside>
+</ui:composition>

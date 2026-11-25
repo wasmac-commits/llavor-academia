@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core" lang="#{academyLanguageBean.languageTag}">
+<f:view locale="#{academyLanguageBean.locale}">
+<h:head><title>#{academyLanguageBean.text['academy.access.page_title']}</title><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<h:outputStylesheet library="llavor" name="css/llavor-theme.css"/>
+<h:outputStylesheet library="llavor" name="css/academia.css"/></h:head>
+<h:body><main class="access-card"><p class="eyebrow">Llavor Academy</p>
+<h1>#{academyLanguageBean.text['academy.access.title']}</h1><p>#{academyLanguageBean.text['academy.access.detail']}</p>
+<p class="muted">#{academyLanguageBean.text['academy.access.expired']}</p>
+</main></h:body></f:view></html>

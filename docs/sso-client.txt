@@ -1,0 +1,111 @@
+Llavor Academia - cliente HTTP SSO S01 (micropaso 18.14)
+
+ALCANCE
+Implementado solamente en Academia. El extremo de navegador y sesion humana
+se ha incorporado en 18.21: ver sso-browser-v1.txt para limites y contrato pendiente
+de Portal. No hay timers, semillas SQL o cambios de aprovisionamiento.
+No se ha instalado S01, habilitado SSO ni realizado HTTP real.
+Contrato remoto de referencia: llavor-portal/docs/sso-http-v1.txt (18.10).
+
+CONFIGURACION
+Lectura mediante ParameterConfigurationService, independiente de provisioning.
+Todos los nombres siguientes llevan prefijo llavor.academia.sso.:
+  enabled                  BOOLEAN  false si falta/deshabilitado.
+  portal-base-url          URL      obligatorio, sin valor implicito.
+  active-key-id            TEXT     obligatorio, exactamente S01.
+  allow-loopback-http      BOOLEAN  false si falta/deshabilitado.
+  environment              TEXT     PRODUCTION por defecto; PRODUCTION/DEVELOPMENT.
+  connect-timeout-seconds  INTEGER  3 por defecto, rango 1..30.
+  request-timeout-seconds  INTEGER  15 por defecto, rango 1..30.
+No se insertan estos parametros en este micropaso. Un estado INVALID o RESTRICTED
+falla cerrado, no se interpreta como un valor por defecto.
+environment es una politica independiente de SSO, no un interruptor JVM/global.
+HTTP requiere DEVELOPMENT + allow-loopback-http=true + destino literal loopback
+(localhost, 127.0.0.1 o ::1). No basta con que un hostname arbitrario resuelva local.
+HTTPS usa confianza JSSE del servidor y comprobacion HTTPS del nombre durante el
+handshake real; no hay TrustManager permisivo ni verificador de hostname propio.
+La URL no admite usuario/password, query, fragmento, redireccion, rutas ambiguas
+ni barra final. Los dos sufijos de endpoint son constantes, nunca parametros.
+
+IDENTIDAD Y S01 - ALMACENAMIENTO DEFINITIVO
+AcademyInstance y pin Application llavor.academia.instance-id deben coincidir.
+Cada solicitud exige un aula local de la Academia y del Portal permanente.
+SsoCredentialProvider lee exclusivamente sso_credentials mediante su repositorio.
+Requiere metadatos coherentes, keyId S01, credential_version=1, master_key_id=M01,
+estado ENABLED y fechas/version correctas. La instalacion deja DISABLED.
+La tabla dedicada esta fuera del editor generico de parametros, sin setters
+de reemplazo ni escritura desde el runtime. JPA @Version y FK compuesta a la
+identidad permanente. Nueva migracion V004__sso_credentials.sql, NO aplicada.
+La configuracion SSO contiene keyId, nunca original S01 o una clave maestra.
+No hay password alias S01 ni dependencia del puerto administrativo.
+Se reutiliza el patron K01: AES-256-GCM, maestro externo y AAD de identidades,
+con material maestro independiente para Academia. El cifrado Java puro
+sso/crypto se compila tambien en el instalador; no se duplica el algoritmo.
+LLAVOR_ACADEMIA_MASTER_KEY_DIR contiene solo la ruta absoluta privada de claves,
+con fichero <UUID Academia>-M01.key: 43 bytes Base64URL canonicos, sin newline.
+Ni original S01 ni maestro se recuperan de propiedades ordinarias o MySQL.
+El maestro no se carga al desplegar ni se cachea. Falta/corrupcion/permisos
+inseguros fallan cerrado con codigo seguro sin excepcion original.
+La AAD liga proposito SSO, version, maestro, UUID Portal/Academia, codigo,
+keyId, operacion, version de credencial y fecha inicial.
+Solo el componente SSO descifra; el resultado es transitorio, cerrado y su
+char[] se borra. No se guardan tokens en sesiones, logs o DTO humanos.
+Guia reproducible Windows/Ubuntu e instalacion: tools/credential-installer/README-S01.txt.
+Historico 18.14: el adaptador Password Alias original ha sido sustituido.
+No se ha instalado, generado o habilitado S01 real en esta adaptacion.
+
+CONTRATOS
+POST <portal-base-url>/internal/v1/sso/tickets/consume
+  contractVersion=1, ticket, academyId, classroomId, browserBindingHash.
+POST <portal-base-url>/internal/v1/sso/access/check
+  contractVersion=1, accessId, academyId, classroomId.
+Authorization: Bearer <S01>, X-Llavor-Sso-Key-Id: S01,
+X-Llavor-Academy-Id: <UUID externo validado>.
+No se envia K01 ni se utiliza su configuracion.
+consume(ticket, hash de vinculacion, aula) devuelve SsoAuthorization solo tras 200
+JSON V1 completo y coherente. userId es STRING decimal positivo segun contrato.
+revalidate(autorizacion previa) exige de nuevo Portal y mantiene exactamente su
+accessId, userId, identidades y caducidad; devuelve SsoRevalidation o falla cerrado.
+El DTO previo sera contexto del servidor futuro, nunca un grant procedente del
+navegador. Esta infraestructura no autoriza por si sola una ruta o sesion humana.
+La vinculacion real del navegador se implementa en sso/browser desde 18.21, sin modificar este contrato tecnico.
+
+SEGURIDAD DE TRANSPORTE Y RESPUESTAS
+HttpClient nativo: TLS 1.3/1.2, endpointIdentificationAlgorithm=HTTPS,
+Redirect.NEVER, NO_PROXY, sin CookieHandler ni Authenticator; un sendAsync por
+intercambio. Cliente cerrado al terminar. No hay bucles de reintento de aplicacion.
+No se alteran propiedades JVM. Se rechazan overrides que anulan hostname checking,
+habilitan retry de todos los metodos o logging HTTP/JSSE susceptible de exponer datos.
+La peticion es POST, no un metodo idempotente de transporte.
+Timeout de conexion y plazo de respuesta completa, incluyendo cuerpo; cancelacion.
+Limite de 4096 bytes en peticion y respuesta; el subscriber cancela el cuerpo
+cuando excede el limite real, tambien en transferencia fragmentada.
+Solo JSON UTF-8, sin BOM/duplicados/campos extra/nulos/documentos posteriores,
+version literal 1 y UUID canonicos. Fechas UTC canonicas con precision MySQL
+(hasta microsegundos), caducidad futura y coherente; no se amplia la autorizacion.
+No se acepta compresion, HTML, 404 ni redireccion como autenticacion satisfactoria.
+
+ERRORES Y RESULTADO INCIERTO
+Codigos seguros SsoClientFailure, sin mensajes originales, causas, trazas,
+cabeceras, cuerpos, tokens, hashes de binding ni verificadores.
+400/401/403/410 se validan con su codigo V1 controlado. 503, timeout, TLS,
+respuesta invalida o fallo de transporte despues de iniciar consume se consideran
+potencialmente confirmados en Portal: consumptionMayHaveCommitted=true.
+No repetir automaticamente ese ticket, no emitir grants locales ni suponer rollback.
+El futuro flujo de navegador debera iniciar un acceso nuevo ante consumo incierto.
+Revalidacion siempre nueva, sin cache positiva ni acceso offline.
+Sin consultas/escrituras de autenticacion durante despliegue o @PostConstruct.
+Lectura de configuracion/identidad en transaccion corta REQUIRES_NEW, intercambio
+NOT_SUPPORTED: sin bloqueos/transaccion de base abiertos durante HTTP.
+
+VALIDACION Y PENDIENTES
+Tests usan claves/cifrados sinteticos, repositorios simulados, respuestas de transporte y
+HttpClient dobles sin red. Comprueban la configuracion real del builder JSSE sin
+handshake; no acreditan aun el certificado de un Payara desplegado.
+Pendiente: instalar S01 y cliente deshabilitado mediante procedimiento aprobado,
+aplicar V004 revisada, configurar maestro externo y URL/parametros SSO expresamente,
+desplegar revisado y validar descifrado y
+handshake real del cliente Java en el entorno objetivo y habilitar controladamente.
+El extremo humano de Academia ya esta implementado en codigo; sigue sin acceso real
+hasta completar el extremo Portal, configurar, desplegar y validar el flujo completo.
+K01, endpoints de aprovisionamiento, outbox, SQL historico y pagina inicial intactos.

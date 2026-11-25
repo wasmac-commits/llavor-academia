@@ -1,0 +1,58 @@
+CIERRE DE SESION COORDINADO Y FILTROS WEB - 2026-11-23
+
+Comportamiento
+- Portal y Academy terminan el cierre correcto en el login de Portal.
+- El cierre revoca el inicio de sesion del navegador y todos los tickets
+  pendientes/accesos SSO derivados de el, sin cerrar otros dispositivos.
+- Las otras pestanas pierden autorizacion en su siguiente peticion protegida.
+  Una respuesta ya entregada o una peticion ya autorizada no se puede retirar.
+- Portal consulta la familia persistida antes de permitir paginas privadas;
+  una cookie revocada se invalida y muestra login sin volver al selector.
+- Academy revalida cada peticion protegida; no concede acceso sin Portal.
+- La familia dura como maximo ocho horas. El timeout HTTP de Portal tambien
+  solicita su revocacion mediante PortalSessionLifecycle. No hay credenciales,
+  tickets originales ni IDs HTTP de sesion guardados en la tabla de familias.
+
+Protocolo
+- POST /internal/v1/sso/access/logout requiere autenticacion tecnica S01,
+  igual que consume/check. No es una excepcion de autenticacion.
+- JSON exacto: contractVersion (numero 1), accessId, academyId, classroomId
+  (cadenas canonicas). Respuesta: {"contractVersion":1,"revoked":true}.
+- Solo la Academia propietaria de un acceso consumido puede revocar su familia.
+  No recibe ni selecciona directamente un identificador de familia.
+- La salida sigue funcionando tras quitar la pertenencia al aula; no exige
+  permisos humanos activos para revocar un acceso ya concedido.
+- Academy valida POST, Origin y CSRF antes del intercambio remoto. Invalida
+  su sesion local y borra el binding incluso si falla el cierre remoto.
+  En ese caso responde 503, sin presentar una redireccion de exito: el cierre
+  central no esta confirmado. Un fallo de revocacion en Portal tambien da 503.
+- Los destinos se obtienen de configuracion validada, nunca de returnUrl,
+  cabeceras Host ni parametros del navegador. No se introducen secretos en URLs.
+- Bloqueos: familia -> Portal -> usuario -> destino/pertenencia/cliente -> ticket.
+  La revocacion bloquea familia antes de actualizar los tickets vinculados.
+  Emision, consumo y revalidacion comprueban la familia bajo ese bloqueo.
+
+Filtrado
+- REQUEST y FORWARD aplican autorizacion al destino efectivo.
+- Portal permite solo paginas privadas declaradas, recursos estaticos y rutas
+  tecnicas/SSO concretas. Una pagina privada nueva debe registrarse en LoginFilter.
+- Academy conserva su lista cerrada de paginas y recursos; SSO solo acepta POST
+  sin query y rutas canonicas. Las rutas K01 mantienen su autenticador propio.
+- Login/recursos no crean una identidad; una URL o un accessId no autentican.
+- Las paginas y respuestas de autenticacion usan no-store. Los permisos sobre
+  objetos siguen comprobados por los servicios existentes.
+
+Despliegue
+1. Detener/drainar ambas aplicaciones y respaldar la base de datos.
+2. Aplicar V009__sso_login_sessions.sql en llavor_portal despues de V008.
+   MySQL DDL hace commits implicitos. No repetir automaticamente una migracion
+   aplicada parcialmente. No usar la cuenta de la aplicacion para ejecutar DDL.
+3. Desplegar Portal y Academy conjuntamente. Las sesiones anteriores deben
+   iniciar sesion de nuevo; V009 revoca los tickets sin vinculacion de familia.
+4. Mantener configurados portal-base-url, entorno, credencial S01 y TLS.
+   La redireccion al login no requiere que SSO siga habilitado ni un aula activa.
+5. Verificar con dos pestanas y otro navegador: salir en una pestana, comprobar
+   bloqueo en la otra y continuidad de la sesion independiente del otro navegador.
+
+La migracion se entrega preparada, no ejecutada. Las pruebas Maven no sustituyen
+la verificacion con MySQL/Payara y el navegador tras desplegar ambos WAR.

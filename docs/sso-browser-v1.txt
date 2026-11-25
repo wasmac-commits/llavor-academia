@@ -1,0 +1,163 @@
+Llavor Academia - contrato de navegador SSO V1, extremo Academia (18.21)
+DOCUMENTADO ANTES DE IMPLEMENTAR. No modifica el HTTP tecnico V1 de Portal.
+No se despliega, configura o prueba contra sistemas reales en este micropaso.
+
+El diseno aprobado fija start, enter, binding temporal y POST del ticket.
+No existia una serializacion/continuacion de navegador implementada en Portal.
+Se concreta asi, sin afirmar que el extremo Portal ya este disponible:
+
+1. Portal valida su sesion, CSRF, usuario/pertenencia/aula/Academia y destino.
+   Genera portalFlowId opaco Base64URL canonico de 32 bytes, ligado en su sesion
+   al usuario, Academia, aula y caducidad. Es de un solo uso y no va en URL.
+   El navegador POST a <Academia autorizada>/sso/start, formulario UTF-8:
+   contractVersion=1, portalFlowId, academyId, classroomId.
+2. Academia valida Origin exacto del Portal configurado, origen/contexto propio,
+   SSO habilitado, identidad y aula local. No consume tickets ni crea sesion.
+   Crea contextId UUID v4, binding aleatorio de 32 bytes y contexto local
+   de 120 segundos ligado a UUID Portal/Academia/aula y URLs autorizadas.
+   Solo SHA-256(binding) queda en memoria del servidor, nunca el original.
+   Cookie LLAVOR_ACADEMIA_SSO_BINDING: host-only, HttpOnly, Path=<context>/sso,
+   Max-Age=120; HTTPS Secure + SameSite=None para POST entre sitios distintos.
+   Excepcion HTTP: solo DEVELOPMENT + flag explicito + loopback directo, con
+   Portal/Academia del mismo origen HTTP; cookie SameSite=Lax, no Secure.
+   Esta excepcion mantiene aprovisionamiento completamente separado.
+3. Respuesta HTML no-store con formulario POST a la ruta FIJA de Portal:
+   <portal-base-url>/sso/continue (PENDIENTE de implementar en Portal).
+   Campos: contractVersion=1, portalFlowId, contextId, portalInstanceId,
+   academyId, classroomId, browserBindingHash. Sin originales binding/ticket.
+   No redireccion GET con parametros. Sin URLs de retorno aportadas por cliente.
+   ATENCION A PORTAL: una cookie humana SameSite=Lax no acompana un POST cross-site.
+   Portal debe resolverlo en su futuro flujo (por ejemplo recepcion sin crear ni
+   reemplazar sesion, intersticial y POST propio que recupere la cookie existente).
+   No emitir tickets en esa recepcion preliminar ni relajar CSRF o asumir sesion.
+   Esta compatibilidad del navegador queda pendiente del micropaso de Portal.
+   Portal debe validar Origin Academia, portalFlowId y sesion humana actual,
+   identidad/destino contra su configuracion, consumir su flujo y emitir el
+   ticket mediante su servicio existente con ese browserBindingHash exacto.
+4. Portal responde formulario POST al /sso/enter de Academia autorizada:
+   SOLO contractVersion=1, contextId, ticket. Nunca userId, roles o URL destino.
+   El usuario puede pulsar Continuar; no hace falta JavaScript/autopost.
+5. Academia coteja el contexto y cookie con comparacion constante, origen Portal,
+   destino/identidad/configuracion actuales y caducidad. Extrae/consume contexto
+   atomicamente ANTES de HTTP, aun si falla o el resultado queda incierto.
+   Una sola llamada a SsoHttpClient.consume(ticket,hash,aula). No reintentos.
+   Solo tras grant V1 valido y relectura del destino local se crea sesion humana.
+   Invalida una sesion anterior, crea otra y rota su ID con changeSessionId().
+   303 relativo a <context>/index.xhtml, sin ticket/contexto en URL.
+
+PARAMETRO NUEVO NECESARIO, SIN SEMILLA/VALOR REAL:
+llavor.academia.sso.academy-base-url, tipo URL, protegido, requerido para navegador.
+Debe coincidir exactamente con el origen y context-root propios.
+Previene confiar en Host o cabeceras forward para fijar destinos/cookies.
+Reutiliza portal-base-url, environment y allow-loopback-http existentes.
+HTTPS en ambos destinos; HTTP solo si ambos son del mismo origen loopback y
+el lector SSO ya ha validado DEVELOPMENT + permiso explicito.
+No se habilita automaticamente ningun parametro o credencial.
+
+SESION Y PAGINAS
+Cookie LLAVOR_ACADEMIA_SESSION independiente, HttpOnly, SameSite=Lax.
+El contenedor marca Secure en peticiones HTTPS; HTTP solo se acepta bajo la
+politica local anterior. Session tracking exclusivamente por cookie.
+Sesion: solo SsoAuthorization humano (UUID Portal, userId, nombre, UUID Academia/
+aula, accessId, instante autentico, caducidad absoluta), plazo local de 8h como
+maximo desde creacion de sesion sin ampliar el limite recibido, y token CSRF logout.
+No ticket, binding, S01, verificadores, credencial cifrada ni roles globales.
+Inactividad 30 minutos. Revalidacion positiva nueva por cada peticion funcional,
+sin cache positiva ni fallback offline. Un marcador de peticion evita duplicar
+la llamada por forwards; no se aplica a peticiones siguientes.
+La configuracion y aula local se comprueban tambien en el extremo humano.
+Cualquier error/caducidad/revocacion invalida la sesion y deniega.
+POST /sso/logout: Origin Academia y token CSRF local, invalida sesion y 303
+a /access-required.xhtml. No logout global ni URL externa configurable.
+Pagina publica de acceso requerido con texto y sin datos personales.
+No se cambian filtros K01. Se excluyen del filtro humano solo sus rutas exactas
+existentes, con metodos propios; conservan el autenticador tecnico independiente.
+No se abre todo /internal ni /sso. Recursos publicos solo GET/HEAD del CSS propio
+(directo o recurso JSF ln=llavor), sin abrir el handler dinamico de PrimeFaces.
+
+LIMITES
+Formularios estrictos <=2048 bytes, sin query, duplicados, campos desconocidos,
+codificacion no UTF-8 o URLs/identidades alternativas. Cabeceras Origin obligatorias
+en POST de entrada y logout; no se confia en Referer/X-Forwarded-*.
+Contextos en memoria acotados a 4096 y limpieza oportunista, sin timers o tablas.
+Reinicio elimina contextos pendientes: iniciar flujo nuevo. Una cookie por navegador;
+un nuevo start sustituye ese intento, no se soportan varios flujos paralelos.
+No logs de entrada, tickets, cookies, cuerpos remotos ni excepciones originales.
+No endpoints diagnosticos, emision desde selector, sesiones reales o HTTP real.
+Pruebas sinteticas no sustituyen validacion futura del contenedor y navegadores.
+
+RESULTADO DE IMPLEMENTACION / LIMITES DE VALIDACION
+Servlets cerrados /sso/start, /sso/enter y /sso/logout; filtro humano por REQUEST
+y FORWARD, servicios CDI y pagina index.xhtml protegida. No hay @PostConstruct
+ni acceso a componentes JSF en la inicializacion. PageBean usa getters JavaBeans.
+Las llamadas consume/revalidate son exclusivamente del SsoHttpClient existente.
+La revalidacion no da acceso offline y un fallo invalida la sesion; los errores
+tecnicos llevan codigo seguro y referencia UUID, sin valores de entrada o causas.
+La configuracion SameSite se registra por SessionCookieConfig de Servlet 6.0.
+Secure=false en ese API no desactiva Secure en HTTPS: solo permite la excepcion
+HTTP previamente validada; el contenedor lo marca en peticiones seguras.
+Referencia: https://jakarta.ee/specifications/webprofile/10/apidocs/jakarta/servlet/SessionCookieConfig.html
+Pendientes de validacion real: cookie/rotacion en Payara y Chrome, SameSite entre
+dominios, politica de reverse proxy TLS (no se confia en headers reenviados),
+despliegue revisado y extremo Portal /sso/continue con su CSRF y sesion.
+
+ACTUALIZACION COORDINADA 18.22 (sustituye pendientes historicos del extremo Portal)
+Portal implementa selector, /sso/continue sin sesion y segundo POST propio a
+/sso/confirm para recuperar la cookie Lax original antes de consumir el flujo.
+Se conserva la serializacion V1 exacta de start/continue/enter.
+Cambio expresamente autorizado: Referrer-Policy strict-origin SOLO en el
+formulario satisfactorio de /sso/start y transferencias de Portal. no-referrer
+convierte Origin en null en POST de navegacion segun Fetch Standard:
+https://fetch.spec.whatwg.org/#append-a-request-origin-header
+No se permite Origin:null, no se comparten rutas/consultas/ticket como Referer.
+Errores mantienen no-referrer. Sin cambios de autenticacion, sesiones, contratos
+tecnicos, parametros reales, credenciales ni despliegues. Ver documento Portal
+para configuracion propia portal-base-url y prueba futura Payara/Chrome.
+
+AJUSTE LOCALIZADO 18.23: la pagina humana autenticada / o /index.xhtml, solo
+tras revalidacion satisfactoria, usa Referrer-Policy strict-origin para que su
+formulario POST logout conserve Origin exacto. Errores, recursos y paginas
+publicas conservan no-referrer. No cambia POST, CSRF ni rechazo de Origin:null.
+
+NAVEGACION 18.25: las transferencias POST conservan exactamente sus campos,
+rutas, controles y etapas. Script fijo sin datos, autorizado solo por hash CSP
+SHA-256, ejecuta requestSubmit una vez; el evento submit impide dobles envios.
+Sin timers, reintentos, fetch, GET o tickets en URL. En back_forward no hay
+autoenvio. Boton manual conservado si JS esta deshabilitado o no esta disponible.
+Errores no generan formularios ni scripts. No-store y strict-origin conservados.
+Textos reparados en UTF-8: los signos ? estaban presentes en el codigo fuente.
+Prueba final Chrome de una sola pulsacion pendiente de ejecucion personal.
+
+PRESENTACION 18.26: transicion neutra con CSS fijo autorizado por hash CSP.
+El formulario conserva su id, POST y campos; esta dentro de details cerrado,
+con summary Opciones de acceso siempre disponible, tambien sin JavaScript.
+Sin timers; autoenvio y script/hash anteriores intactos.
+Academia reutiliza byte por byte logo horizontal y llavor-theme.css de Portal,
+con PrimeIcons de su dependencia existente. Solo recursos de cabecera exactos
+son publicos GET/HEAD; no se abre el handler JSF ni scripts genericos.
+Cabecera Academia mantiene usuario SSO, aula y logout POST local con CSRF.
+No muestra email o roles que no existen en el contrato humano. Su logo vuelve
+a index.xhtml propio; no se copia el enlace administrativo ni logout de Portal.
+Regreso futuro al selector: solo destino fijo classroom-selector.xhtml obtenido
+de portal-base-url ya validada en servidor, nunca un returnUrl del navegador.
+No se incorpora ese enlace en este paso ni se cambia el contrato SSO.
+
+Presentacion de la transicion (2026-11-23):
+Los formularios /sso/start, /sso/continue y /sso/confirm admiten ademas el
+campo opcional uiDisplayName (maximo 100 puntos de codigo, sin controles).
+Es solo una etiqueta visual no verificada; nunca identidad ni autorizacion.
+Portal lo obtiene de PortalSession al salir y vuelve a usar PortalSession
+al confirmar. Academia lo separa antes de llamar al servicio de inicio y lo
+refleja escapado en la cabecera y el formulario de retorno. /sso/continue
+no consulta ni crea sesiones para mostrarlo. /sso/enter mantiene SOLO los
+3 campos originales. No se transporta este nombre en URLs ni logs.
+Las pantallas intermedias comparten la cabecera Portal (logo local de
+150x50, fondo #0f172a, tipografia, nombre y comportamiento adaptable).
+CSP permite imagenes exclusivamente del mismo origen y conserva hashes
+exactos de estilos/script; no se incorporan scripts dependientes de datos.
+Ambas aplicaciones deben desplegarse juntas para este ajuste opcional.
+
+Ajuste 2026-11-23: cierre coordinado con familias persistidas de Portal y
+POST tecnico /internal/v1/sso/access/logout. Ver docs/coordinated-logout.txt.
+La salida humana termina en el login configurado de Portal; las referencias
+anteriores a salida exclusivamente local/access-required quedan sustituidas.

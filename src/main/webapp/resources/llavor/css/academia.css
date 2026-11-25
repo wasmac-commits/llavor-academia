@@ -1,0 +1,10 @@
+/* Content only. Header/layout/type/palette come verbatim from local llavor-theme.css. */
+.academy-classroom-card { padding: 2rem; }
+.academy-classroom-code { margin: 0 0 .75rem; color: var(--llavor-accent); font-size: .8rem; letter-spacing: .06em; font-weight: 700; }
+.academy-classroom-card h2 { margin: 0 0 1rem; font-size: 1.5rem; }
+.academy-classroom-card p { line-height: 1.6; }
+.access-card { max-width: 560px; margin: 10vh auto; padding: 2rem; background: #fff; border: 1px solid var(--llavor-border); border-radius: 16px; }
+.access-card h1 { margin: .5rem 0; font-size: 1.7rem; }
+.access-card .eyebrow { color: var(--llavor-accent); font-weight: 750; text-transform: uppercase; letter-spacing: .1em; font-size: .75rem; }
+.access-card .muted { color: var(--llavor-muted); }
+@media (max-width: 760px) { .academy-classroom-card { padding: 1.25rem; } .access-card { margin: 3rem 1rem; padding: 1.25rem; } }

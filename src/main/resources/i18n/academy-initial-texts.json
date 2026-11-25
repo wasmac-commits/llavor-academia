@@ -1,0 +1,321 @@
+{
+  "formatVersion": 1,
+  "languages": {
+    "es": "Español",
+    "ca-ES-valencia": "Valencià"
+  },
+  "texts": [
+    {
+      "key": "common.language.select",
+      "es": "Idioma",
+      "ca-ES-valencia": "Idioma",
+      "description": "Interfaz Portal · common.language.select"
+    },
+    {
+      "key": "common.action.continue",
+      "es": "Continuar",
+      "ca-ES-valencia": "Continua",
+      "description": "Interfaz Portal · common.action.continue"
+    },
+    {
+      "key": "common.greeting",
+      "es": "Hola, {0}",
+      "ca-ES-valencia": "Hola, {0}",
+      "description": "Interfaz Portal · common.greeting"
+    },
+    {
+      "key": "common.navigation.skip",
+      "es": "Ir al contenido",
+      "ca-ES-valencia": "Ves al contingut",
+      "description": "Interfaz Portal · common.navigation.skip"
+    },
+    {
+      "key": "common.navigation.administration",
+      "es": "Administración",
+      "ca-ES-valencia": "Administració",
+      "description": "Interfaz Portal · common.navigation.administration"
+    },
+    {
+      "key": "common.navigation.previous",
+      "es": "Anterior",
+      "ca-ES-valencia": "Anterior",
+      "description": "Interfaz Portal · common.navigation.previous"
+    },
+    {
+      "key": "common.navigation.next",
+      "es": "Siguiente",
+      "ca-ES-valencia": "Següent",
+      "description": "Interfaz Portal · common.navigation.next"
+    },
+    {
+      "key": "common.navigation.page",
+      "es": "Página {0}",
+      "ca-ES-valencia": "Pàgina {0}",
+      "description": "Interfaz Portal · common.navigation.page"
+    },
+    {
+      "key": "common.session.logout",
+      "es": "Salir",
+      "ca-ES-valencia": "Eixir",
+      "description": "Interfaz Portal · common.session.logout"
+    },
+    {
+      "key": "common.session.logout_title",
+      "es": "Cerrar sesión",
+      "ca-ES-valencia": "Tancar sessió",
+      "description": "Interfaz Portal · common.session.logout_title"
+    },
+    {
+      "key": "portal.footer.learning",
+      "es": "Llavor Academy · Tu espacio de aprendizaje",
+      "ca-ES-valencia": "Llavor Academy · El teu espai d'aprenentatge",
+      "description": "Interfaz Portal · portal.footer.learning"
+    },
+    {
+      "key": "portal.language.unavailable",
+      "es": "Ese idioma no está publicado o ya no está disponible.",
+      "ca-ES-valencia": "Eixe idioma no està publicat o ja no està disponible.",
+      "description": "Interfaz Portal · portal.language.unavailable"
+    },
+    {
+      "key": "portal.language.save_failed",
+      "es": "No se ha podido guardar el idioma. Vuelve a intentarlo.",
+      "ca-ES-valencia": "No s'ha pogut guardar l'idioma. Torna-ho a provar.",
+      "description": "Interfaz Portal · portal.language.save_failed"
+    },
+    {
+      "key": "portal.language.concurrent_change",
+      "es": "El idioma ha cambiado en otra sesión. Actualiza la página.",
+      "ca-ES-valencia": "L’idioma ha canviat en una altra sessió. Actualitza la pàgina.",
+      "description": "Interfaz Portal · portal.language.concurrent_change"
+    },
+    {
+      "key": "portal.language.invalid_request",
+      "es": "La solicitud ha caducado. Recarga la página.",
+      "ca-ES-valencia": "La sol·licitud ha caducat. Torna a carregar la pàgina.",
+      "description": "Interfaz Portal · portal.language.invalid_request"
+    },
+    {
+      "key": "academy.home.page_title",
+      "es": "Mi aula · Llavor Academia",
+      "ca-ES-valencia": "La meua aula · Llavor Acadèmia",
+      "description": "Interfaz funcional de Academia"
+    },
+    {
+      "key": "academy.header.context",
+      "es": "Academia",
+      "ca-ES-valencia": "Acadèmia",
+      "description": "Interfaz funcional de Academia"
+    },
+    {
+      "key": "academy.session.logout_title",
+      "es": "Cerrar sesión en Academia",
+      "ca-ES-valencia": "Tancar la sessió en Acadèmia",
+      "description": "Interfaz funcional de Academia"
+    },
+    {
+      "key": "academy.home.eyebrow",
+      "es": "Tu espacio de aprendizaje",
+      "ca-ES-valencia": "El teu espai d’aprenentatge",
+      "description": "Interfaz funcional de Academia"
+    },
+    {
+      "key": "academy.home.subtitle",
+      "es": "Ya estás en tu aula de Llavor Academia.",
+      "ca-ES-valencia": "Ja estàs en la teua aula de Llavor Acadèmia.",
+      "description": "Interfaz funcional de Academia"
+    },
+    {
+      "key": "academy.home.authorized",
+      "es": "Aula autorizada",
+      "ca-ES-valencia": "Aula autoritzada",
+      "description": "Interfaz funcional de Academia"
+    },
+    {
+      "key": "academy.home.technical",
+      "es": "Academia Técnica",
+      "ca-ES-valencia": "Acadèmia Tècnica",
+      "description": "Interfaz funcional de Academia"
+    },
+    {
+      "key": "academy.home.coming",
+      "es": "El espacio de aprendizaje se irá ampliando en los próximos pasos.",
+      "ca-ES-valencia": "L’espai d’aprenentatge s’ampliarà en els pròxims passos.",
+      "description": "Interfaz funcional de Academia"
+    },
+    {
+      "key": "academy.access.page_title",
+      "es": "Acceso a Llavor Academia",
+      "ca-ES-valencia": "Accés a Llavor Acadèmia",
+      "description": "Interfaz funcional de Academia"
+    },
+    {
+      "key": "academy.access.title",
+      "es": "Accede desde Portal",
+      "ca-ES-valencia": "Accedix des de Portal",
+      "description": "Interfaz funcional de Academia"
+    },
+    {
+      "key": "academy.access.detail",
+      "es": "Vuelve al selector de aulas de Llavor Portal para iniciar un acceso nuevo a tu aula.",
+      "ca-ES-valencia": "Torna al selector d’aules de Llavor Portal per a iniciar un accés nou a la teua aula.",
+      "description": "Interfaz funcional de Academia"
+    },
+    {
+      "key": "academy.access.expired",
+      "es": "Si tu sesión ha caducado o tu acceso ha cambiado, Portal volverá a comprobar tus permisos.",
+      "ca-ES-valencia": "Si la teua sessió ha caducat o el teu accés ha canviat, Portal tornarà a comprovar els teus permisos.",
+      "description": "Interfaz funcional de Academia"
+    },
+    {
+      "key": "academy.i18n.sync",
+      "es": "Actualizar idiomas desde Portal",
+      "ca-ES-valencia": "Actualitzar els idiomes des de Portal",
+      "description": "Intercambio administrativo de idiomas"
+    },
+    {
+      "key": "academy.i18n.sync_failed",
+      "es": "No se han podido actualizar los idiomas. Se conserva el catálogo local.",
+      "ca-ES-valencia": "No s’han pogut actualitzar els idiomes. Es conserva el catàleg local.",
+      "description": "Intercambio administrativo de idiomas"
+    },
+    {
+      "key": "academy.i18n.pending",
+      "es": "El idioma se aplica en esta sesión. Su guardado en Portal está pendiente; vuelve a intentarlo.",
+      "ca-ES-valencia": "L’idioma s’aplica en esta sessió. El guardat en Portal està pendent; torna-ho a provar.",
+      "description": "Intercambio administrativo de idiomas"
+    },
+    {
+      "key": "academy.i18n.retry",
+      "es": "Guardar idioma pendiente",
+      "ca-ES-valencia": "Guardar l’idioma pendent",
+      "description": "Intercambio administrativo de idiomas"
+    },
+    {
+      "key": "academy.shell.navigation",
+      "es": "Navegación",
+      "ca-ES-valencia": "Navegació",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.open_menu",
+      "es": "Abrir navegación",
+      "ca-ES-valencia": "Obri la navegació",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.close_menu",
+      "es": "Cerrar navegación",
+      "ca-ES-valencia": "Tanca la navegació",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.home",
+      "es": "Inicio",
+      "ca-ES-valencia": "Inici",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.profile",
+      "es": "Mi perfil",
+      "ca-ES-valencia": "El meu perfil",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.information",
+      "es": "Información",
+      "ca-ES-valencia": "Informació",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.about",
+      "es": "Acerca de",
+      "ca-ES-valencia": "Sobre la plataforma",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.units",
+      "es": "Unidades didácticas",
+      "ca-ES-valencia": "Unitats didàctiques",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.no_units",
+      "es": "Sin unidades disponibles todavía",
+      "ca-ES-valencia": "Encara no hi ha unitats disponibles",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.welcome",
+      "es": "Bienvenido a tu aula",
+      "ca-ES-valencia": "Et donem la benvinguda a la teua aula",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.learning",
+      "es": "Tu formación",
+      "ca-ES-valencia": "La teua formació",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.your_space",
+      "es": "Tu espacio de formación",
+      "ca-ES-valencia": "El teu espai de formació",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.ready",
+      "es": "Tu aula, preparada para aprender",
+      "ca-ES-valencia": "La teua aula, preparada per a aprendre",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.classroom",
+      "es": "Aula",
+      "ca-ES-valencia": "Aula",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.code",
+      "es": "Código de aula",
+      "ca-ES-valencia": "Codi de l’aula",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.session",
+      "es": "Tu sesión",
+      "ca-ES-valencia": "La teua sessió",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.user",
+      "es": "Usuario",
+      "ca-ES-valencia": "Usuari",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.profile_readonly",
+      "es": "Estos son los datos de tu sesión actual. La gestión de tu cuenta se realiza desde Llavor Portal.",
+      "ca-ES-valencia": "Estes són les dades de la teua sessió actual. La gestió del teu compte es fa des de Llavor Portal.",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.information_detail",
+      "es": "Utiliza el menú para consultar tu aula y los datos de tu sesión. El selector de idioma y el cierre de sesión están en la cabecera.",
+      "ca-ES-valencia": "Utilitza el menú per a consultar la teua aula i les dades de la teua sessió. El selector d’idioma i el tancament de sessió estan en la capçalera.",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.specialist",
+      "es": "Formación especializada en automatización industrial.",
+      "ca-ES-valencia": "Formació especialitzada en automatització industrial.",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    },
+    {
+      "key": "academy.shell.about_detail",
+      "es": "Un espacio para aprender, practicar y desarrollar conocimientos técnicos.",
+      "ca-ES-valencia": "Un espai per a aprendre, practicar i desenvolupar coneixements tècnics.",
+      "description": "Etapa 21 · preparación para revisión y publicación central; no publicada automáticamente"
+    }
+  ]
+}

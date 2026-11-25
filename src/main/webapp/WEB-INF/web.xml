@@ -4,14 +4,24 @@
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
          version="6.0">
     <display-name>Llavor Academia</display-name>
+    <filter><filter-name>LlavorTrustedProxy</filter-name><filter-class>academy.llavor.academia.web.https.TrustedProxyFilter</filter-class></filter>
+    <filter-mapping><filter-name>LlavorTrustedProxy</filter-name><url-pattern>/*</url-pattern><dispatcher>REQUEST</dispatcher></filter-mapping>
+
     <context-param>
         <param-name>jakarta.faces.PROJECT_STAGE</param-name>
         <param-value>Production</param-value>
     </context-param>
     <context-param>
         <param-name>primefaces.THEME</param-name>
-        <param-value>saga</param-value>
+        <param-value>saga-blue</param-value>
     </context-param>
+    <listener><listener-class>academy.llavor.academia.sso.browser.HumanSessionCookieConfig</listener-class></listener>
+    <filter><filter-name>LlavorHumanAccess</filter-name><filter-class>academy.llavor.academia.sso.browser.HumanAccessFilter</filter-class></filter>
+    <filter-mapping><filter-name>LlavorHumanAccess</filter-name><url-pattern>/*</url-pattern><dispatcher>REQUEST</dispatcher><dispatcher>FORWARD</dispatcher></filter-mapping>
+    <servlet><servlet-name>LlavorSsoBrowser</servlet-name><servlet-class>academy.llavor.academia.sso.browser.SsoEntryServlet</servlet-class></servlet>
+    <servlet-mapping><servlet-name>LlavorSsoBrowser</servlet-name><url-pattern>/sso/start</url-pattern></servlet-mapping>
+    <servlet-mapping><servlet-name>LlavorSsoBrowser</servlet-name><url-pattern>/sso/enter</url-pattern></servlet-mapping>
+    <servlet-mapping><servlet-name>LlavorSsoBrowser</servlet-name><url-pattern>/sso/logout</url-pattern></servlet-mapping>
     <servlet>
         <servlet-name>LlavorAcademiaFacesServlet</servlet-name>
         <servlet-class>jakarta.faces.webapp.FacesServlet</servlet-class>
@@ -32,5 +42,6 @@
     <welcome-file-list>
         <welcome-file>index.xhtml</welcome-file>
     </welcome-file-list>
+<listener><listener-class>academy.llavor.academia.web.https.SecureSessionCookies</listener-class></listener>
 </web-app>
 

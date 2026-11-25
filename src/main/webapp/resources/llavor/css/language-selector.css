@@ -1,0 +1,12 @@
+/* Shared language control: native name, neutral globe, keyboard focus, no flag-only labels. */
+.llavor-locale-form { display:flex; align-items:center; gap:.35rem; margin:0; max-width:220px; flex-wrap:wrap; color:inherit; }
+.llavor-language-icon { font-size:1rem; line-height:1; }
+.llavor-locale-form .llavor-locale-select.ui-selectonemenu { min-width:105px; color:inherit!important; border:0!important; box-shadow:none!important; border-radius:6px; background:transparent!important; }
+.llavor-locale-form .llavor-locale-select .ui-selectonemenu-label { color:inherit!important; background:transparent!important; padding:.5rem 1.8rem .5rem .25rem; font-size:.85rem; }
+.llavor-locale-form .llavor-locale-select .ui-selectonemenu-trigger { color:inherit!important; background:transparent!important; width:1.5rem; }
+.llavor-locale-form .llavor-locale-select.ui-state-disabled { opacity:1!important; }
+.llavor-locale-form .llavor-locale-select.ui-state-focus { outline:2px solid #60a5fa!important; outline-offset:3px; }
+.llavor-topbar .llavor-locale-form { color:#fff; }
+.llavor-locale-form .ui-message { max-width:220px; font-size:.8rem; }
+.llavor-login-locale { margin:0 0 1rem auto; justify-content:flex-end; color:var(--llavor-primary); }
+@media(max-width:760px) { .llavor-locale-form { flex-shrink:0; } }

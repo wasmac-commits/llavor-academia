@@ -1,0 +1,63 @@
+Etapa 21 - Corrección de contratos Facelets, 24/11/2026
+
+Diagnóstico de los cuatro fallos originales
+1. AcademyLanguageViewTest.functionalViewsUsePreparedKeysAndLocalLocaleWithoutTranslatingUserData:
+   index.xhtml ahora es una composición. html@lang y f:view@locale están en
+   WEB-INF/templates/academy-template.xhtml, incorporada por ui:composition@template.
+2. AcademyLanguageViewTest.selectorMatchesPortalVisualContractAndSeedsBelongToCentralCatalog:
+   el selector está en WEB-INF/fragments/academy-header.xhtml, incluido por la
+   plantilla. Además, las claves academy.shell.* son preparación local de etapa
+   21: todavía no forman parte de una publicación central. No se publica nada.
+3. AcademiaHeaderTest.headerKeepsLocalLogoutAndHumanScopeWithoutPortalActions:
+   header e imagen están en ese include, por lo que contar sólo index.xhtml da
+   cero. Logout conserva formulario POST a /sso/logout con token CSRF de sesión.
+4. BrowserBoundaryTest.humanPagesRetainAccentsInUtf8AndValidXhtml:
+   academy.home.page_title está en el título por defecto de la plantilla y la
+   clave de logout en la cabecera. Se conservan ambas claves originales.
+   Al ampliar la inspección apareció un defecto real adicional: acentos de varias
+   cadenas nuevas convertidos en '?'. Se repararon en el JSON preparado, en UTF-8.
+
+Corrección
+- FaceletView (sólo test) resuelve template/define/insert/include locales y analiza
+  XML con entidades externas deshabilitadas. No interpreta EL ni simula un motor
+  JSF completo. Los tests comprueban la estructura compuesta en vez de un archivo
+  aislado y fallan si falta un include o se rompe la composición.
+- Se conservan las comprobaciones de traducciones, datos personales escapados,
+  identidad, aula, logout local, POST y CSRF, y la ausencia de acciones de Portal.
+- El veto histórico al nombre CSS academy-header se sustituye por comprobar la
+  hoja específica de Academia posterior al tema base; no era un contrato de acceso.
+- Nuevas pruebas: campos reales del formulario logout; locale efectivo aplicado
+  por el listener RESTORE_VIEW; catálogo anterior con valenciano habilitado y
+  fallback español para claves nuevas todavía no publicadas.
+- Las claves anteriores siguen contrastándose con el catálogo central preparado.
+  Las nuevas academy.shell.* se validan en ambos idiomas como borrador, con
+  argumentos compatibles. Nunca se presentan como traducciones publicadas.
+- Sin cambios en SSO, intercambio de preferencias, credenciales, base de datos,
+  aprovisionamiento, Portal o PraxIA durante esta corrección.
+
+Resultados
+- Casos afectados más regresiones de idioma: 41 pruebas, cero fallos/errores/omitidas.
+  target/stage21-focused.log.
+- Maven package completo: 338 pruebas, cero fallos/errores/omitidas; BUILD SUCCESS.
+  target/stage21-build.log.
+- RUN existente exclusivo de llavor-academia: repite las 338 pruebas, BUILD SUCCESS,
+  redeploy correcto. target/stage21-run.log.
+- UUID Academia a45c4cdd-e59b-11f1-87f2-d4939055b632 y propiedades Application
+  conservados, incluido llavor.i18n.exchange-enabled=true. WAR desplegado coincide
+  con el construido. Configuración de las otras cuatro aplicaciones conservada;
+  las cinco habilitadas. Sin reiniciar Payara.
+- Recursos CSS, JS y fondo industrial: HTTP 200. index anónimo redirige con 303;
+  logout por GET rechazado con 405. Sin errores nuevos de aplicación en server.log.
+- No se probaron cambios de idioma sobre un usuario real. La persistencia se
+  conserva mediante los servicios existentes y sus pruebas de guardado/reintento.
+
+Validación visual pendiente del administrador
+No se repitió la operación bloqueada de navegador ni se intentó eludirla.
+URL: http://localhost:8080/llavor-academia/index.xhtml
+Acceder mediante Portal y seleccionar el aula para iniciar una sesión nueva tras
+redeploy. En Chrome revisar anchos 1440, 768 y 390: header blanco y línea roja,
+logo, identidad, idioma, logout, menú fijo/desplegable, fondo y tarjetas, márgenes,
+contraste y ausencia de desbordamiento. Probar cierre por fondo/Escape y navegación
+con teclado. Cambiar idioma y reentrar desde Portal para confirmar persistencia.
+Las nuevas cadenas permanecen en fallback español hasta revisión/publicación
+central explícita. No se declara validada la calidad visual por compilar Maven.

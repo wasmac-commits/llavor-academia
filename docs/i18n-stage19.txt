@@ -1,0 +1,204 @@
+ETAPA 19 - INTERNACIONALIZACION Y GESTION CENTRALIZADA DE IDIOMAS
+Estado: base implementada; migraciones PREPARADAS, NO EJECUTADAS.
+
+1. AUDITORIA Y DECISIONES
+
+Portal tiene 14 XHTML y Academia 2. No existe faces-config.xml con locale-config,
+ResourceBundle de interfaz ni f:view locale explicito. Los documentos HTML fijan
+lang="es"; este atributo no establece por si mismo el Locale de JSF.
+
+Literales de Portal: login.xhtml; WEB-INF/templates/portal-template.xhtml;
+classroom-selector.xhtml; admin/index.xhtml y pantallas users/academies/classrooms
+y modulos administrativos. Incluyen titulos, etiquetas, botones, tooltips y tablas.
+En Java: LoginBean, beans administrativos, excepciones de validacion y paginas
+HTML de PortalBrowserHttp. Academia tiene literales en index.xhtml,
+access-required.xhtml y BrowserHttp/SsoEntryServlet. Codigos de error, nombres
+de protocolos, logs y valores de negocio NO deben traducirse como etiquetas UI.
+Los contenidos academicos quedan fuera de estas tablas.
+
+Identidad: PortalSession conserva una UserIdentity y la familia de login; Academy
+usa HumanSession con el grant de Portal, expiracion y CSRF. No hay una cuenta
+humana local equivalente que deba recibir una preferencia nueva.
+
+Configuracion existente: PortalParameterRepository y
+TechnicalAcademyParameterRepository separan parametros globales y por Academia;
+Academia tiene AcademyParameterRepository. ParameterConfigurationService ofrece
+lecturas tipadas cortas de estas tablas. No es un distribuidor de textos ni
+versiona publicaciones; no se reutilizan parametros como miles de traducciones.
+
+K01 identifica la provision tecnica; S01 autentica consume/check/logout. Sus
+rutas y esquemas son cerrados. Sus clientes HTTP y los filtros no se modifican.
+Tampoco se reutiliza el scheduler de aprovisionamiento. Los pins de instalacion
+existentes solo se LEEN para comprobar el origen de los catalogos.
+
+Convenciones: repositorios JPA sin transporte, servicios CDI transaccionales,
+Cacheable(false), @Version, fechas UTC y migraciones SQL manuales por proyecto.
+V009 de Portal ya existe: esta etapa agrega V010 en Portal y V005 en Academia,
+cada una siguiendo la ultima version de SU propia base de datos.
+
+2. LOCALE Y CLAVES
+
+Base es; adicional ca-ES-valencia. IANA registra valencia como variante de ca.
+Java 21 acepta ca-ES-valencia y conserva lenguaje ca, region ES y variante
+valencia. La prueba local demostro que Builder preserva el caso de variantes
+introducidas en mayusculas: LanguageTags normaliza explicitamente esa variante
+a minusculas, ademas de la normalizacion de idioma/script/region de Locale.
+No se guarda ca_ES_valencia ni el resultado de Locale.toString().
+
+Fuentes verificadas:
+https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
+https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Locale.html
+
+Se admiten etiquetas BCP 47 de lenguaje, script, region y variante sin extensiones
+ni uso privado, hasta 63 caracteres; se rechazan und y etiquetas mal formadas.
+La validacion comprueba sintaxis Java/BCP 47, no descarga IANA en ejecucion.
+Los idiomas futuros son filas, no un enum ni una lista compilada.
+
+Claves estables de hasta 180 caracteres: common.action.continue,
+portal.classroom.empty, academy.classroom.title. Los segmentos son minusculas,
+digitos y guion bajo; el punto delimita ambitos. Los ambitos nuevos no exigen
+cambiar un enum. No se infieren traducciones a partir del literal espanol.
+
+3. MODELO PERSISTENTE CENTRAL
+
+Un catalogo UI completo por instalacion Portal, codigo estable ui. Contiene
+todos los ambitos. No se crean catalogos por usuario o por sesion JSF.
+
+- i18n_catalog_head: singleton con revision del borrador, version publicada y
+  auditoria. Es el bloqueo comun de cambios y publicacion.
+- i18n_languages: etiqueta, nombre visible, habilitado, fechas, autores y @Version.
+- i18n_text_keys: clave estable, texto base espanol obligatorio, descripcion y
+  auditoria. El espanol se guarda una vez, no como otra traduccion duplicada.
+- i18n_translations: clave + idioma unico, texto, auditoria y @Version. La ausencia
+  es valida y provoca fallback; no se necesitan filas vacias.
+- i18n_publications: historial inmutable de JSON, SHA-256, version, revision de
+  origen y autor/fecha de publicacion.
+- user_language_preferences: user_id de Portal como PK/FK, idioma, fecha y @Version.
+  Es una preferencia, no una segunda identidad.
+
+V010 incluye FK, indices, unicidad y checks, permiso i18n.manage, es y
+ca-ES-valencia y tres claves de muestra. No asigna permisos ordinarios ni crea
+cuentas. Los actores NULL identifican exclusivamente el seed SQL; las escrituras
+de servicios exigen actor. La auditoria conserva creacion/ultimo editor y las
+publicaciones completas; no se agrega un event store para cada pulsacion.
+
+No se publica automaticamente: hasta la primera publicacion explicita existe
+un catalogo minimo de recuperacion es v0. Las publicaciones reales empiezan en
+v1. Se puede agregar fr/en y otros idiomas mediante servicios, sin recompilar.
+
+4. SERVICIOS
+
+TranslationAdminService requiere sesion Portal y permiso i18n.manage antes de
+tocar datos. Permite listar borrador, agregar/editar idiomas, claves y textos,
+eliminar traducciones y publicar. No se puede deshabilitar es ni borrar su base.
+No hay pantalla nueva, @Named, API REST ni tarea automatica.
+
+Cada escritura recibe expectedRevision y bloquea el head; una revision antigua
+produce OptimisticLockException. @Version protege tambien las filas JPA.
+Todos los cambios del borrador y la publicacion se serializan con ese bloqueo.
+Publish valida todo y crea snapshot + mueve el puntero en UNA transaccion
+REQUIRES_NEW. Un fallo revierte ambas cosas. No se sobrescriben publicaciones.
+Una restauracion editorial se hace republicando contenido con una version nueva,
+no rebajando el contador.
+
+TranslationService obtiene solo publicaciones completas, comprueba el origen
+Portal contra el pin existente y resuelve claves sin JSF. Un consumidor debe
+obtener un snapshot por peticion/trabajo y resolver todos sus textos en memoria.
+No se bloquea una version en la sesion del usuario: una nueva peticion puede
+obtener la nueva publicacion sin reiniciar aplicaciones.
+
+LanguagePreferenceService lee/escribe SOLO la preferencia del usuario de la
+sesion, sin aceptar user_id del navegador. Bloquea head -> usuario -> preferencia,
+exige usuario activo y un idioma publicado/habilitado. Usa expectedVersion
+(-1 para creacion). La fila persiste entre sesiones. Si se deshabilita su idioma
+en una publicacion posterior, la preferencia guardada se conserva y la efectiva
+pasa a es. No hay preferencia duplicada en HumanSession o cuentas de Academia.
+
+5. FORMATO, SEGURIDAD Y FALLBACK
+
+CatalogSnapshot es profundamente inmutable. Contrato JSON formatVersion=1:
+portalInstanceId, catalogCode, version, publishedAt, languages (tag -> nombre),
+messages (tag -> clave -> plantilla). La integridad se entrega como SHA-256 de
+los bytes UTF-8. CatalogCodec ordena mapas para codificacion determinista;
+rechaza propiedades duplicadas, desconocidas, formatos incompatibles, arrays,
+UTF-8 incorrecto, identidades invalidas y falta de base es.
+
+Limites iniciales: 32 idiomas, 10.000 claves, 2.000 caracteres por texto,
+4 MiB por publicacion. Si el contenido supera el limite, la publicacion falla
+sin sustituir la anterior. Estos limites son intencionados y se podran ajustar
+con una revision explicita del contrato, sin particionar prematuramente.
+
+Fallback: idioma exacto normalizado habilitado -> texto es -> [clave.ausente].
+No se inventa una traduccion ni se usa otro Portal o ambito. No se hace una
+busqueda implicita ca-ES-valencia -> ca que pueda perder la variante elegida.
+Resolution informa idioma efectivo, fallback y clave ausente.
+
+TextTemplate acepta {0}..{19}; {{ y }} representan llaves literales. Apostrofes
+y acentos se conservan. Las traducciones deben mantener el conjunto de indices
+del espanol. Se rechazan formatos arbitrarios, objetos no escalares y plantillas
+mal formadas. El resultado es TEXTO PLANO: nunca HTML ni EL. La futura interfaz
+debe usar h:outputText escape=true o textContent, nunca escape=false/innerHTML.
+No se usa MessageFormat para evitar sus reglas de comillas en frases como l'aula.
+
+6. COPIA LOCAL Y DISTRIBUCION PREVISTA
+
+V005 de Academia crea i18n_local_catalog: un slot persistente vacio v0 con
+payload, digest, version, origen y fecha. LocalTranslationService lee SOLO esta
+base. LocalCatalogRepository bloquea el slot al instalar; se valida antes de
+modificarlo y se confirma en una transaccion corta independiente.
+
+Se aceptan publicaciones ui del Portal al que pertenece la Academia, contrastado
+con AcademyInstance y su pin. Se rechazan bajadas de version, misma version con
+otro digest, fechas futuras/backdating y origen/catalogo distintos. La repeticion
+exacta es idempotente. Un rechazo no borra la ultima copia valida. La copia
+persiste tras reiniciar; antes de la primera instalacion sigue disponible es v0.
+
+El conjunto habilitado en la publicacion es, en esta etapa, el conjunto autorizado
+globalmente para todas las Academias de ese Portal. No se duplica la administracion
+ni se introducen excepciones por Academia que no han sido solicitadas.
+
+Se implementa el RECEPTOR CDI interno, no su exposicion ni activacion. El digest
+detecta corrupcion, NO autentica al emisor. La futura entrega debe autenticar
+Portal y Academia, usar TLS y enlazar ambas identidades antes de llamar install.
+La recomendacion es un adaptador i18n independiente que reutilice el verificador
+tecnico S01, con rutas/contrato propios aprobados en otra etapa. No ampliar ahora
+los esquemas cerrados consume/check/logout ni usar K01/el worker para catalogos.
+
+No hay HTTP nuevo, pull, push, scheduler ni sincronizacion al renderizar. Actualizar
+Portal hoy NO actualiza una Academia automaticamente: el transporte esta pendiente.
+Una vez instalada una nueva publicacion local, el siguiente snapshot la ve sin
+recompilar ni redesplegar.
+
+La preferencia compartida futura requiere un intercambio i18n autenticado que
+derive el usuario de un acceso humano validado, sin confiar en un user_id
+arbitrario firmado solo con credencial tecnica. Se resolvera fuera del renderizado
+y sin duplicar identidades. No se modifica el grant ni el flujo SSO en este paso.
+
+7. SIGUIENTE ETAPA Y LIMITES DE VERIFICACION
+
+Construir administracion de idiomas/textos con revision visible, previsualizacion,
+cobertura de traducciones y publicacion explicita; agregar ruta y permiso web.
+Despues construir selector: persistir preferencia, configurar Locale de f:view
+y lang de HTML, y conectar componentes a snapshots con escape activado.
+Extraer XHTML progresivamente por modulo, no sustituir todos los literales de golpe.
+Integrar en otra etapa el adaptador autenticado de distribucion y preferencias.
+
+Las pruebas cubren normalizacion, es/valencia, habilitados, ausencias, parametros,
+publicacion, revision obsoleta, persistencia de preferencia, aislamiento, integridad,
+versionado local, lectura desconectada y correspondencia SQL/JPA. El fixture JSON
+con digest fijo es comun a los dos proyectos sin dependencia Maven entre ellos.
+El pequeno nucleo de contrato esta duplicado por independencia de los proyectos;
+debe evolucionar coordinadamente con ese fixture y formatVersion.
+
+No se ha ejecutado SQL real ni desplegado. La compatibilidad DDL real y el
+comportamiento de bloqueos JPA deben verificarse en MySQL/Payara cuando se autorice
+la aplicacion de las nuevas migraciones. No se modifica PraxIA ni se usa Git.
+
+VERIFICACION FINAL DE ESTA ETAPA
+- Portal: mvn -o -q "-Dmaven.repo.local=.m2/repository" package
+  764 pruebas, 0 fallos, 0 errores, 0 omitidas; WAR generado.
+- Academia: mismo comando en su proyecto.
+  305 pruebas, 0 fallos, 0 errores, 0 omitidas; WAR generado.
+- Se ha comprobado tambien que ambos nucleos de contrato coinciden al normalizar
+  solo el nombre del paquete. No hay dependencia Maven entre aplicaciones.
+- No se ejecutaron migraciones ni despliegues ni operaciones Git.

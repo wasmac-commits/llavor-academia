@@ -1,0 +1,243 @@
+/* =========================================================
+   Llavor Theme
+   ========================================================= */
+
+:root {
+    --llavor-primary: #0f172a;
+    --llavor-primary-soft: #1e293b;
+    --llavor-primary-muted: #334155;
+
+    --llavor-accent: #2563eb;
+    --llavor-accent-hover: #1d4ed8;
+    --llavor-accent-soft: #dbeafe;
+
+    --llavor-bg: #f8fafc;
+    --llavor-surface: #ffffff;
+    --llavor-surface-soft: #f1f5f9;
+
+    --llavor-border: #e2e8f0;
+    --llavor-border-strong: #cbd5e1;
+
+    --llavor-text: #0f172a;
+    --llavor-text-soft: #334155;
+    --llavor-muted: #64748b;
+
+    --llavor-success: #16a34a;
+    --llavor-success-soft: #dcfce7;
+
+    --llavor-warning: #d97706;
+    --llavor-warning-soft: #fef3c7;
+
+    --llavor-danger: #dc2626;
+    --llavor-danger-soft: #fee2e2;
+
+    --llavor-info: #0284c7;
+    --llavor-info-soft: #e0f2fe;
+
+    --llavor-radius-sm: 6px;
+    --llavor-radius-md: 10px;
+    --llavor-radius-lg: 16px;
+
+    --llavor-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+    --llavor-shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+
+    --llavor-header-height: 64px;
+    --llavor-content-max-width: 1680px;
+}
+
+html,
+body {
+    min-height: 100%;
+    margin: 0;
+}
+
+body {
+    background: var(--llavor-bg);
+    color: var(--llavor-text);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 14px;
+}
+
+/* =========================================================
+   Layout Llavor
+   ========================================================= */
+
+.llavor-layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--llavor-bg);
+}
+
+.llavor-topbar {
+    min-height: var(--llavor-header-height);
+    background: var(--llavor-primary);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 0 1.75rem;
+    box-sizing: border-box;
+    box-shadow: var(--llavor-shadow-sm);
+}
+
+.llavor-brand {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.llavor-brand-title {
+    font-size: 1.2rem;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+}
+
+.llavor-brand-context {
+    font-size: 0.8rem;
+    opacity: 0.78;
+    margin-top: 0.25rem;
+}
+
+.llavor-user-area {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    font-size: 0.95rem;
+}
+
+.llavor-topbar-link {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    opacity: 0.9;
+}
+
+.llavor-topbar-link:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+.llavor-main {
+    flex: 1;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.llavor-content {
+    width: 100%;
+    max-width: var(--llavor-content-max-width);
+    margin: 0 auto;
+}
+
+.llavor-footer {
+    padding: 0.9rem 1.75rem;
+    text-align: center;
+    color: var(--llavor-muted);
+    font-size: 0.8rem;
+}
+
+/* =========================================================
+   Cabeceras de página
+   ========================================================= */
+
+.llavor-page {
+    width: 100%;
+}
+
+.llavor-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.llavor-page-title,
+.portal-page-title {
+    margin: 0;
+    color: var(--llavor-text);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.llavor-page-subtitle,
+.portal-page-subtitle {
+    margin: 0.35rem 0 0 0;
+    color: var(--llavor-muted);
+    font-size: 0.95rem;
+}
+
+.llavor-muted {
+    color: var(--llavor-muted);
+}
+
+/* =========================================================
+   Cards
+   ========================================================= */
+
+.llavor-card {
+    background: var(--llavor-surface);
+    border: 1px solid var(--llavor-border);
+    border-radius: var(--llavor-radius-lg);
+    box-shadow: var(--llavor-shadow-sm);
+    padding: 1.25rem;
+}
+
+/* =========================================================
+   Empty states
+   ========================================================= */
+
+.llavor-empty-state {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: var(--llavor-radius-md);
+    border: 1px solid var(--llavor-border);
+    background: var(--llavor-surface-soft);
+    color: var(--llavor-text-soft);
+}
+
+.llavor-empty-state-warning {
+    border-left: 4px solid var(--llavor-warning);
+    background: var(--llavor-warning-soft);
+}
+
+
+* { box-sizing: border-box; }
+.llavor-topbar { padding: .5rem 1.75rem; }
+.llavor-topbar-right { display: flex; align-items: center; gap: 1.25rem; min-width: 0; }
+.llavor-brand-link { display: inline-flex; gap: .75rem; align-items: center; color: #fff; text-decoration: none; flex-shrink: 0; }
+.llavor-brand-mark { display: inline-grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,.12); color: #fff; font-size: 1.55rem; font-weight: 750; }
+.llavor-user-identity { display: flex; flex-direction: column; min-width: 0; padding-left: 1.25rem; border-left: 1px solid rgba(255,255,255,.18); text-align: right; }
+.llavor-user-name { font-weight: 650; }
+.llavor-user-email { font-size: .8rem; margin-top: .25rem; color: #cbd5e1; overflow-wrap: anywhere; }
+.llavor-admin-link, .llavor-logout-button, .llavor-back-link { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; padding: .6rem .85rem; border: 1px solid rgba(255,255,255,.2); border-radius: var(--llavor-radius-md); font: inherit; text-decoration: none; color: #fff; background: rgba(255,255,255,.08); cursor: pointer; white-space: nowrap; }
+.llavor-admin-link:hover, .llavor-logout-button:hover { background: rgba(255,255,255,.17); }
+.llavor-logout-form { margin: 0; }
+.llavor-content { max-width: 1180px; }
+.llavor-main { padding: 2.5rem 2rem; }
+.llavor-page-header { align-items: center; margin-bottom: 1.75rem; }
+.llavor-page-title { font-size: clamp(1.6rem, 3vw, 2rem); }
+.llavor-eyebrow { margin: 0 0 .65rem; color: var(--llavor-accent); font-size: .72rem; font-weight: 750; text-transform: uppercase; letter-spacing: .1em; }
+.llavor-empty-panel { min-height: 320px; padding: 3rem 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.llavor-empty-icon { display: grid; place-items: center; width: 68px; height: 68px; margin-bottom: 1.25rem; border-radius: 20px; background: var(--llavor-accent-soft); color: var(--llavor-accent); font-size: 1.75rem; }
+.llavor-empty-panel h2 { margin: 0; font-size: 1.2rem; color: var(--llavor-text); }
+.llavor-empty-panel p { max-width: 470px; margin: .75rem 0 0; color: var(--llavor-muted); line-height: 1.7; }
+.llavor-back-link { background: var(--llavor-surface); border-color: var(--llavor-border); color: var(--llavor-text-soft); }
+.llavor-back-link:hover { background: var(--llavor-surface-soft); }
+.llavor-skip-link { position: absolute; top: -100px; left: 1rem; z-index: 100; background: white; color: var(--llavor-primary); padding: .75rem 1rem; border-radius: 6px; }
+.llavor-skip-link:focus { top: .5rem; }
+a:focus-visible, button:focus-visible { outline: 3px solid #60a5fa; outline-offset: 3px; }
+@media (max-width: 760px) {
+    .llavor-topbar { flex-wrap: wrap; gap: 1rem; padding: 1rem; }
+    .llavor-topbar-right { width: 100%; flex-wrap: wrap; gap: .75rem; }
+    .llavor-user-identity { flex: 1; text-align: left; padding-left: 0; border-left: 0; min-width: 140px; }
+    .llavor-admin-link { order: 3; }
+    .llavor-main { padding: 1.5rem 1rem; }
+    .llavor-page-header { flex-wrap: wrap; gap: 1rem; }
+    .llavor-empty-panel { min-height: 290px; padding: 2rem 1rem; }
+}
+.llavor-header-logo { display: block; width: 150px; height: 50px; max-width: 40vw; object-fit: contain; flex-shrink: 0; }
+.llavor-visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
